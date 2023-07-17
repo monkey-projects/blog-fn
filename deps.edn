@@ -10,6 +10,9 @@
                                           :exclusions [org.slf4j/slf4j-nop]}}
    :exec-fn monkey.test/all}
 
+  :watch
+  {:exec-fn monkey.test/watch}
+
   :run
   {:main-opts ["-m" "monkey.blog.main"]}
 
