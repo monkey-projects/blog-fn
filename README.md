@@ -62,6 +62,11 @@ Reducing the number of assets could be a possible optimization.  The web app cou
 function with minimal dependencies: the landing html page, the ClojureScript js file
 and perhaps some images.  Even the css [could be included in the cljs](https://github.com/clj-commons/cljss).
 
+After running initial tests, I have seen that loading the main page, which is
+based upon a minimal Nginx image of 11MB, can take between 15 and 20 seconds.
+Subsequent calls are a lot faster (< 500ms).  With appropriate caching on the
+end of the API gateway, this initial load time could perhaps be lowered.
+
 ## Building
 
 Initially, we would use CircleCI to build the thing, but I would like to switch
