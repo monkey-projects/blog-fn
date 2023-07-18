@@ -23,8 +23,12 @@
     (is (= 1 (count (sut/list-entries test-ctx)))))
   
   (testing "lists entries with id filter"
-    (let [id (sut/create-entry (assoc test-ctx :body {:title "test entry"
-                                                      :contents "This is a test"}))]
+    (let [id (-> test-ctx
+                 (assoc-in [:parameters :body] {:title "test entry"
+                                                :contents "This is a test"})
+                 (sut/create-entry)
+                 :body
+                 :id)]
       (is (some? (sut/create-entry (assoc test-ctx :body {:title "another entry"}))))
       (let [matches (sut/list-entries (assoc test-ctx :query-params {:id id}))]
         (is (= 1 (count matches)))
@@ -36,8 +40,13 @@
                    :status))))
   
   (testing "retrieves entry by id"
-    (let [id (sut/create-entry (assoc test-ctx :body {:title "test entry"
-                                                      :contents "This is a test"}))]
+    (let [id (-> test-ctx
+                 (assoc-in [:parameters :body] {:title "test entry"
+                                                :contents "This is a test"})
+                 (sut/create-entry)
+                 :body
+                 :id)]
+      (is (some? id))
       (is (= "test entry" (-> (sut/get-entry (assoc-in test-ctx [:path-params :id] id))
                               :body
                               :title))))))

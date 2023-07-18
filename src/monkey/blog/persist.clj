@@ -24,7 +24,7 @@
     ((make-filter-fn f) @store))
 
   (write-entry [ms {:keys [area] :as e}]
-    (let [id (random-uuid)]
+    (let [id (str (random-uuid))]
       (swap! store assoc-in [area id] e)
       id))
 

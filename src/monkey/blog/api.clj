@@ -15,7 +15,6 @@
   (p/list-entries (storage req) (assoc-area req (:query-params req))))
 
 (defn get-entry [req]
-  (log/info "Request:" req)
   (if-let [match (->> (:path-params req)
                       (p/list-entries (storage req))
                       (first))]
@@ -24,7 +23,11 @@
     {:status 404}))
 
 (defn create-entry [req]
-  (p/write-entry (storage req) (assoc-area req (:body req))))
+  (let [entry (->> (get-in req [:parameters :body])
+                   (assoc-area req))
+        id (p/write-entry (storage req) entry)]
+    {:status 201
+     :body (assoc entry :id id)}))
 
 (defn update-entry [ctx id opts]
   )

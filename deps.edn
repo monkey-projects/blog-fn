@@ -12,7 +12,8 @@
  {:test
   {:extra-paths ["test" "dev-resources"]
    :extra-deps {com.monkeyprojects/build {:mvn/version "0.1.0-SNAPSHOT"
-                                          :exclusions [org.slf4j/slf4j-nop]}}
+                                          :exclusions [org.slf4j/slf4j-nop]}
+                ring/ring-mock {:mvn/version "0.4.0"}}
    :exec-fn monkey.test/all}
 
   :watch

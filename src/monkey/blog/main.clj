@@ -1,7 +1,9 @@
 (ns monkey.blog.main
   (:gen-class)
   (:require [clojure.tools.logging :as log]
-            [monkey.blog.api :as api]
+            [monkey.blog
+             [api :as api]
+             [persist :as p]]
             [org.httpkit.server :as http]
             [reitit
              [coercion :as rco]
@@ -9,6 +11,7 @@
              [ring :as rr]]
             [reitit.coercion.schema]
             [reitit.ring.coercion :as rrc]
+            [reitit.ring.middleware.muuntaja :as rrmm]
             [schema.core :as s]))
 
 (defn- health [_]
@@ -25,20 +28,25 @@
   (rr/router
    [["/health" {:name ::health
                 :get health}]
-    ["/api" {:middleware [rrc/coerce-request-middleware
+    ["/api" {:middleware [rrmm/format-middleware
+                          rrc/coerce-request-middleware
                           [config-middleware config]]
              :coercion reitit.coercion.schema/coercion}
      ["/entries"
       ["/:area" {:parameters {:path {:area s/Str}}}
        ["/:id" {:name ::entry-by-id
                 :get api/get-entry
-                :parameters {:path {:id s/Uuid}}}]]]]]
-   {:compile rco/compile-request-coercers}))
+                :parameters {:path {:id s/Str}}}]
+       ["" {:name ::create-entry
+            :post api/create-entry
+            :parameters {:body s/Any #_{:title s/Str}}}]]]]]))
 
 (defn make-handler [config]
-  (rr/ring-handler (make-router config)))
+  (rr/ring-handler (make-router config)
+                   (constantly {:status 404 :body "Not found"})))
 
-(def handler (make-handler {}))
+;; TODO Get config from env
+(def handler (make-handler {:storage (p/make-memory-storage)}))
 
 (defn -main [& args]
   (let [opts {:port 8080}]
