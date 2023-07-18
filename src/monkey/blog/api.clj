@@ -5,24 +5,20 @@
 (def storage :storage)
 (def area :area)
 
-(defn- make-filter-fn
-  "Creates a filter fn according to the argument"
-  [area f]
-  ;; TODO
-  (fn [store]
-    (let [s (get store area)]
-      (if (some? (:id f))
-        [(get s (:id f))]
-        s))))
+(defn- assoc-area [ctx x]
+  (assoc x :area (area ctx)))
 
-(defn list-entries [{:keys [area] :as ctx} filter]
-  (p/list-entries (storage ctx) (make-filter-fn area filter)))
+(defn list-entries [ctx filter]
+  (p/list-entries (storage ctx) (assoc-area ctx filter)))
 
 (defn get-entry [ctx id]
-  )
+  (->> {:id id}
+       (assoc-area ctx)
+       (p/list-entries (storage ctx))
+       (first)))
 
 (defn create-entry [ctx opts]
-  (p/write-entry (storage ctx) (assoc opts :area (area ctx))))
+  (p/write-entry (storage ctx) (assoc-area ctx opts)))
 
 (defn update-entry [ctx id opts]
   )

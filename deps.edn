@@ -13,6 +13,10 @@
   :watch
   {:exec-fn monkey.test/watch}
 
+  :coverage
+  {:exec-fn monkey.test/coverage
+   :exec-args {:ns-regex ["monkey.blog.*"]}}
+
   :run
   {:main-opts ["-m" "monkey.blog.main"]}
 

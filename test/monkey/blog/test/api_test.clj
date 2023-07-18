@@ -29,3 +29,12 @@
       (let [matches (sut/list-entries test-ctx {:id id})]
         (is (= 1 (count matches)))
         (is (= "test entry" (:title (first matches))))))))
+
+(deftest get-entry
+  (testing "`nil` when entry not found"
+    (is (nil? (sut/get-entry test-ctx (random-uuid)))))
+  
+  (testing "retrieves entry by id"
+    (let [id (sut/create-entry test-ctx {:title "test entry"
+                                         :contents "This is a test"})]
+      (is (= "test entry" (:title (sut/get-entry test-ctx id)))))))
