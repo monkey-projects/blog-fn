@@ -4,11 +4,12 @@
              [api :as sut]
              [persist :as p]]))
 
-(def test-ctx {:monkey.blog/config {:storage (p/make-memory-storage)}
+(def storage (p/make-memory-storage))
+(def test-ctx {:monkey.blog/config {:storage storage}
                :parameters {:path {:area "test"}}})
 
 (defn- clean-db [f]
-  (reset! (get-in test-ctx [:monkey.blog/config :storage :store]) nil)
+  (reset! (:store storage) nil)
   (f))
 
 (use-fixtures :each clean-db)
@@ -54,3 +55,61 @@
       (is (= "test entry" (-> (sut/get-entry (assoc-in test-ctx [:parameters :path :id] id))
                               :body
                               :title))))))
+
+(deftest delete-entry
+  (let [area "delete area"]
+    
+    (testing "removes entry by id from db"
+      (let [id (p/write-entry storage {:title "to delete"
+                                       :area area})]
+        (is (= 204 (-> test-ctx
+                       (assoc-in [:parameters :path] {:id id
+                                                      :area area})
+                       (sut/delete-entry)
+                       :status)))
+        (is (nil? (p/read-entry storage id)))))
+
+    (testing "not found if entry does not exist"
+        (is (= 404 (-> test-ctx
+                       (assoc-in [:parameters :path] {:id "nonexisting-id"
+                                                      :area area})
+                       (sut/delete-entry)
+                       :status))))))
+
+(deftest update-entry
+  (let [area "update area"]
+
+    (testing "updates existing item"
+      (let [id (p/write-entry storage {:title "to update"
+                                       :area area})]
+        (is (= 200 (-> test-ctx
+                       (assoc :parameters
+                              {:path {:id id
+                                      :area area}
+                               :body {:title "updated title"}})
+                       (sut/update-entry)
+                       :status)))
+        (is (= "updated title" (-> (p/read-entry storage id)
+                                   :title)))))
+
+    (testing "404 if entry does not exist"
+      (is (= 404 (-> test-ctx
+                     (assoc :parameters
+                            {:path {:id (str (random-uuid))
+                                    :area area}
+                             :body {:title "updated title"}})
+                     (sut/update-entry)
+                     :status))))
+
+    (testing "404 if item is in different area"
+      (let [id (p/write-entry storage {:title "original title"
+                                       :area area})]
+        (is (= 404 (-> test-ctx
+                       (assoc :parameters
+                              {:path {:id id
+                                      :area "other-area"}
+                               :body {:title "updated title"}})
+                       (sut/update-entry)
+                       :status)))
+        (is (= "original title" (-> (p/read-entry storage id)
+                                    :title)))))))

@@ -14,9 +14,10 @@
 (defn- status= [expected r]
   (= expected (:status r)))
 
-(def not-found? (partial status= 404))
-(def success?   (partial status= 200))
-(def created?   (partial status= 201))
+(def not-found?  (partial status= 404))
+(def success?    (partial status= 200))
+(def created?    (partial status= 201))
+(def no-content? (partial status= 204))
 
 (defn json-> [in]
   (-> (io/reader in)
@@ -76,11 +77,37 @@
                             (test-handler)))))))
 
     (testing "POST /"
-      (testing "creates new entry"
-        (let [r (-> (mock/request :post "/api/entries/blog")
-                    (mock/json-body {:title "test"})
+      (let [r (-> (mock/request :post "/api/entries/blog")
+                  (mock/json-body {:title "test"
+                                   :contents "Test item"})
+                  (test-handler))]
+        (testing "creates new entry"
+          (is (created? r)))
+
+        (testing "assigns id"
+          (is (some? (-> r
+                         :body
+                         (json->)
+                         :id))))))
+
+    (testing "PUT /:id"
+      (testing "updates existing entry"
+        (let [id (p/write-entry storage {:title "test"
+                                         :area "blog"})
+              r (-> (mock/request :put (str "/api/entries/blog/" id))
+                    (mock/json-body {:title "test"
+                                     :contents "Test item"})
                     (test-handler))]
-          (is (created? r)))))))
+          (is (success? r)))))
+
+    (testing "DELETE /:id"
+      (let [area "test-delete-area"]
+        (testing "deletes by id"
+          (let [id (p/write-entry storage {:title "To delete"
+                                           :area area})]
+            (is (some? id))
+            (is (no-content? (-> (mock/request :delete (str "/api/entries/" area "/" id))
+                                 (test-handler))))))))))
 
 (deftest -main
   (testing "starts http server"

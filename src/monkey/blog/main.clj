@@ -25,6 +25,10 @@
   (fn [req]
     (handler (assoc req :monkey.blog/config config))))
 
+(s/defschema BlogEntry
+  {(s/optional-key :title) (s/maybe s/Str)
+   :contents s/Str})
+  
 (defn make-router [config]
   (rr/router
    [["/health" {:name ::health
@@ -38,11 +42,14 @@
       ["/:area" {:parameters {:path {:area s/Str}}}
        ["/:id" {:name ::entry-by-id
                 :get api/get-entry
+                :delete api/delete-entry
+                :put {:handler api/update-entry
+                      :parameters {:body BlogEntry}}
                 :parameters {:path {:id s/Str}}}]
        ["" {:name ::create-entry
-            :post api/create-entry
-            :get api/list-entries
-            :parameters {:body s/Any #_{:title s/Str}}}]]]]]
+            :post {:handler api/create-entry
+                   :parameters {:body BlogEntry}}
+            :get api/list-entries}]]]]]
    {:data {:muuntaja mc/instance}}))
 
 (defn make-handler [config]

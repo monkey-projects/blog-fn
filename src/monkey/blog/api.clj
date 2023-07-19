@@ -21,12 +21,13 @@
          :status 200}))))
 
 (defn get-entry [req]
-  (if-let [match (->> (get-in req [:parameters :path])
-                      (p/list-entries (storage req))
-                      (first))]
-    {:status 200
-     :body match}
-    {:status 404}))
+  (let [{:keys [id area]} (get-in req [:parameters :path])]
+    (if-let [match (->> [(p/read-entry (storage req) id)]
+                        (filter (comp (partial = area) :area))
+                        (first))]
+      {:status 200
+       :body match}
+      {:status 404})))
 
 (defn create-entry [req]
   (let [entry (->> (get-in req [:parameters :body])
@@ -37,8 +38,19 @@
      :headers {"content-type" "application/json"}
      :body (assoc entry :id id)}))
 
-(defn update-entry [ctx id opts]
-  )
+(defn update-entry [req]
+  (let [{{:keys [area id]} :path :keys [body]} (:parameters req)
+        s (storage req)
+        match (p/read-entry s id)]
+    (if (and match (= area (:area match)))
+      (do
+        (p/write-entry s (merge match body))
+        {:status 200})
+      {:status 404})))
 
-(defn delete-entry [ctx id]
-  )
+(defn delete-entry [req]
+  (let [{:keys [area id]} (get-in req [:parameters :path])]
+    (log/debug "Deleting entry" id)
+    {:status (if (p/delete-entry (storage req) id)
+               204
+               404)}))
