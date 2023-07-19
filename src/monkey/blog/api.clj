@@ -41,11 +41,13 @@
 (defn update-entry [req]
   (let [{{:keys [area id]} :path :keys [body]} (:parameters req)
         s (storage req)
-        match (p/read-entry s id)]
+        match (p/read-entry s id)
+        upd (merge match body)]
     (if (and match (= area (:area match)))
       (do
-        (p/write-entry s (merge match body))
-        {:status 200})
+        (p/write-entry s upd)
+        {:status 200
+         :body upd})
       {:status 404})))
 
 (defn delete-entry [req]

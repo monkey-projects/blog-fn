@@ -20,8 +20,9 @@
 (def no-content? (partial status= 204))
 
 (defn json-> [in]
-  (-> (io/reader in)
-      (json/read :key-fn keyword)))
+  (some-> in
+          (io/reader)
+          (json/read :key-fn keyword)))
 
 (defn- clean-db [f]
   (reset! (:store storage) nil)
@@ -91,14 +92,25 @@
                          :id))))))
 
     (testing "PUT /:id"
-      (testing "updates existing entry"
-        (let [id (p/write-entry storage {:title "test"
-                                         :area "blog"})
-              r (-> (mock/request :put (str "/api/entries/blog/" id))
-                    (mock/json-body {:title "test"
-                                     :contents "Test item"})
-                    (test-handler))]
-          (is (success? r)))))
+      (let [id (p/write-entry storage {:title "test"
+                                       :area "blog"})
+            r (-> (mock/request :put (str "/api/entries/blog/" id))
+                  (mock/json-body {:title "test"
+                                   :contents "Test item"})
+                  (test-handler))]
+        
+        (testing "updates existing entry"
+          (is (= "Test item" (-> (p/read-entry storage id)
+                                 :contents))))
+
+        (testing "returns success"
+          (is (success? r)))
+
+        (testing "returns updated entry"
+          (is (= "Test item" (-> r
+                                 :body
+                                 (json->)
+                                 :contents))))))
 
     (testing "DELETE /:id"
       (let [area "test-delete-area"]
