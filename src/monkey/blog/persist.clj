@@ -15,9 +15,7 @@
     (let [s (get store area)]
       (if (some? (:id f))
         [(get s (:id f))]
-        (map (fn [[id v]]
-               (assoc v :id id))
-             s)))))
+        (vals s)))))
 
 ;; In memory implementation, used for development/testing
 (defrecord MemoryStorage [store]
@@ -27,7 +25,7 @@
 
   (write-entry [ms {:keys [area] :as e}]
     (let [id (str (random-uuid))]
-      (swap! store assoc-in [area id] e)
+      (swap! store assoc-in [area id] (assoc e :id id))
       id))
 
   (read-entry [ms id]))

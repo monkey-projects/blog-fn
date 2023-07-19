@@ -35,7 +35,8 @@
       (let [matches (-> (sut/list-entries (assoc test-ctx :query-params {:id id}))
                         :body)]
         (is (= 1 (count matches)))
-        (is (= "test entry" (:title (first matches))))))))
+        (is (= "test entry" (:title (first matches))))
+        (is (= id (:id (first matches))))))))
 
 (deftest get-entry
   (testing "status `404` when entry not found"
