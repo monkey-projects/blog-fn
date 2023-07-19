@@ -4,6 +4,7 @@
             [monkey.blog
              [api :as api]
              [persist :as p]]
+            [muuntaja.core :as mc]
             [org.httpkit.server :as http]
             [reitit
              [coercion :as rco]
@@ -30,6 +31,7 @@
                 :get health}]
     ["/api" {:middleware [rrmm/format-middleware
                           rrc/coerce-request-middleware
+                          rrc/coerce-response-middleware
                           [config-middleware config]]
              :coercion reitit.coercion.schema/coercion}
      ["/entries"
@@ -39,7 +41,9 @@
                 :parameters {:path {:id s/Str}}}]
        ["" {:name ::create-entry
             :post api/create-entry
-            :parameters {:body s/Any #_{:title s/Str}}}]]]]]))
+            :get api/list-entries
+            :parameters {:body s/Any #_{:title s/Str}}}]]]]]
+   {:data {:muuntaja mc/instance}}))
 
 (defn make-handler [config]
   (rr/ring-handler (make-router config)

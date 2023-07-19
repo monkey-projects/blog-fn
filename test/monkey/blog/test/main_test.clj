@@ -1,5 +1,7 @@
 (ns monkey.blog.test.main-test
   (:require [clojure.test :refer :all]
+            [clojure.data.json :as json]
+            [clojure.java.io :as io]
             [monkey.blog
              [main :as sut]
              [persist :as p]]
@@ -15,6 +17,16 @@
 (def not-found? (partial status= 404))
 (def success?   (partial status= 200))
 (def created?   (partial status= 201))
+
+(defn json-> [in]
+  (-> (io/reader in)
+      (json/read :key-fn keyword)))
+
+(defn- clean-db [f]
+  (reset! (:store storage) nil)
+  (f))
+
+(use-fixtures :each clean-db)
 
 (deftest handler
   (testing "is a fn"
@@ -36,15 +48,32 @@
       
       (testing "retrieves by id"
         (let [id (p/write-entry storage {:title "test"
-                                         :area "blog"})]
-          (is (success? (-> (mock/request :get (str "/api/entries/blog/" id))
-                            (test-handler))))))
+                                         :area "blog"})
+              response (-> (mock/request :get (str "/api/entries/blog/" id))
+                           (test-handler))]
+          (is (success? response))
+          (is (= "test" (-> response
+                            :body
+                            (json->)
+                            :title)))))
       
       (testing "not found if wrong area"
         (let [id (p/write-entry storage {:title "test"
                                          :area "blog"})]
           (is (not-found? (-> (mock/request :get (str "/api/entries/other/" id))
                               (test-handler)))))))
+
+    (testing "GET /"
+      (let [area "test"]
+        (testing "404 if no entries"
+          (is (not-found? (-> (mock/request :get (str "/api/entries/" area))
+                              (test-handler)))))
+
+        (testing "returns entries for area"
+          (is (some? (p/write-entry storage {:title "test entry"
+                                             :area area})))
+          (is (success? (-> (mock/request :get (str "/api/entries/" area))
+                            (test-handler)))))))
 
     (testing "POST /"
       (testing "creates new entry"

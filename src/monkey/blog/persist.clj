@@ -15,7 +15,9 @@
     (let [s (get store area)]
       (if (some? (:id f))
         [(get s (:id f))]
-        s))))
+        (map (fn [[id v]]
+               (assoc v :id id))
+             s)))))
 
 ;; In memory implementation, used for development/testing
 (defrecord MemoryStorage [store]
