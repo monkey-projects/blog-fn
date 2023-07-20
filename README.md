@@ -51,6 +51,22 @@ Infrastructure is managed by [Terraform](https://terraform.io), and the configur
 files can be found under [the infra/ folder](infra/).  The build pipeline is also
 responsible for deploying any changes to GCP.
 
+## Local Testing
+
+In order to run the application locally as an AppEngine app, first build a `war` file:
+```bash
+# Uberjar first
+clojure -X:jar:uber
+clojure -X:jar:war
+```
+The archive can be located in the `target` dir.  In order to test it, you can use the
+script that's provided in the `gcloud` cli:
+```bash
+java_dev_appserver.sh target/war
+```
+
+This will start the application at [http://localhost:8080](http://localhost:8080).
+
 ## More links
 
 - [The GCP appengine Java Github page](https://github.com/GoogleCloudPlatform/appengine-java-standard).
