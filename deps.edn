@@ -5,7 +5,9 @@
         metosin/reitit-ring {:mvn/version "0.7.0-alpha5"}
         metosin/reitit-schema {:mvn/version "0.7.0-alpha5"}
         metosin/reitit-middleware {:mvn/version "0.7.0-alpha5"}
-        http-kit/http-kit {:mvn/version "2.7.0"}}
+        http-kit/http-kit {:mvn/version "2.7.0"}
+        ;; For servlet
+        com.google.appengine/runtime-shared {:mvn/version "2.0.9"}}
  :paths ["src" "resources"]
 
  :aliases
