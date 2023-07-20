@@ -1,6 +1,7 @@
 (ns monkey.blog.main
   (:gen-class)
   (:require [clojure.tools.logging :as log]
+            [config.core :refer [env]]
             [monkey.blog
              [api :as api]
              [persist :as p]]
@@ -60,6 +61,6 @@
 (def handler (make-handler {:storage (p/make-memory-storage)}))
 
 (defn -main [& args]
-  (let [opts {:port 8080}]
+  (let [opts (merge {:port 8080} (select-keys env [:port]))]
     (log/info "Starting HTTP server at port" (:port opts))
     (http/run-server handler opts)))

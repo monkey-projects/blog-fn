@@ -56,16 +56,28 @@ responsible for deploying any changes to GCP.
 In order to run the application locally as an AppEngine app, first build a `war` file:
 ```bash
 # Uberjar first
-clojure -X:jar:uber
-clojure -X:jar:war
+$ clojure -X:jar:uber
+$ clojure -X:jar:war
 ```
 The archive can be located in the `target` dir.  In order to test it, you can use the
 script that's provided in the `gcloud` cli:
 ```bash
-java_dev_appserver.sh target/war
+$ java_dev_appserver.sh target/war
 ```
 
 This will start the application at [http://localhost:8080](http://localhost:8080).
+The strange thing is, in order to deploy to GCloud, you don't even need all this stuff!
+So I'll probably throw it all back out.
+
+## Deploying
+
+To manually deploy the application, create an uberjar and invoke `gcloud`:
+```bash
+$ clojure -X:jar:uber
+$ gcloud app deploy
+```
+This will automatically upload the uberjar, static files and the `app.yaml` that
+holds the application configuration.
 
 ## More links
 

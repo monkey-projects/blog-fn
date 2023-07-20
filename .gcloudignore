@@ -1,0 +1,14 @@
+*
+/resources/WEB-INF
+
+!/resources
+!/resources/public/
+*~
+!target
+target/war
+target/classes
+target/coverage
+*.war
+!target/blog-fn.jar
+
+!app.yaml
