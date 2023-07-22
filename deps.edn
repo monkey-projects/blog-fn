@@ -41,8 +41,4 @@
                :main monkey.blog.main}}
   
   :uber
-  {:exec-fn monkey.blog.build/uberjar}
-
-  :war
-  {:exec-fn monkey.blog.build/war
-   :exec-args {:war "target/app.war"}}}}
+  {:exec-fn monkey.blog.build/uberjar}}}

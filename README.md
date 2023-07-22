@@ -53,21 +53,14 @@ responsible for deploying any changes to GCP.
 
 ## Local Testing
 
-In order to run the application locally as an AppEngine app, first build a `war` file:
+Build the application as an uberjar, and then start it:
+
 ```bash
-# Uberjar first
 $ clojure -X:jar:uber
-$ clojure -X:jar:war
-```
-The archive can be located in the `target` dir.  In order to test it, you can use the
-script that's provided in the `gcloud` cli:
-```bash
-$ java_dev_appserver.sh target/war
+$ java -jar target/blog-fn.jar
 ```
 
 This will start the application at [http://localhost:8080](http://localhost:8080).
-The strange thing is, in order to deploy to GCloud, you don't even need all this stuff!
-So I'll probably throw it all back out.
 
 ## Deploying
 
@@ -78,6 +71,18 @@ $ gcloud app deploy
 ```
 This will automatically upload the uberjar, static files and the `app.yaml` that
 holds the application configuration.
+
+In order to deploy to production, an new tag must be created starting with `release/`.
+The part after the `release/` will then be used for the GCP AppEngine version.  For
+example:
+```bash
+$ git tag -m "Release 1.0" release/1.0
+$ git push origin release/1.0
+```
+
+This will start the build pipeline to deploy a new version called `1.0`.  Ideally, this
+coincides with the version specified in the `deps.edn`, or the version should be passed
+on the command line.
 
 ## More links
 
