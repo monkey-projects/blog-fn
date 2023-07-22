@@ -77,19 +77,16 @@ jobs:
           
 workflows:
   version: 2
-  test:
-    triggers:
-      branches:
-        ignore: main
+  build:
     jobs:
       - test-app
-  deploy:
-    triggers:
-      branches:
-        only: main
-    jobs:
-      - test-app
-      - uberjar
+      - uberjar:
+          filters:
+            # Only deploy on release tags
+            tags:
+              only: /^v.*/
+            branches:
+              only: main
       - deploy-gcp:
           requires:
             - test-app
