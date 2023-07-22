@@ -73,16 +73,15 @@ This will automatically upload the uberjar, static files and the `app.yaml` that
 holds the application configuration.
 
 In order to deploy to production, an new tag must be created starting with `v`.
-The tag name will then be used for the GCP AppEngine version.  For
-example:
+The pipeline number will then be used for the GCP AppEngine version, since GCP does
+not support decimal points in the version name.  For example:
 ```bash
 $ git tag -m "Release 1.0" v1.0
 $ git push origin v1.0
 ```
 
-This will start the build pipeline to deploy a new version called `v1.0`.  Ideally, this
-coincides with the version specified in the `deps.edn`, or the version should be passed
-on the command line.
+This will start the build pipeline to deploy a new version, called after the pipeline
+number.  This makes it easier to retrace the exact code that is deployed.
 
 ## More links
 

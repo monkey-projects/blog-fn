@@ -73,7 +73,7 @@ jobs:
           at: target/
       - run:
           name: Deploy AppEngine version
-          command: gcloud app deploy app.yaml -v <<pipeline.git.tag>>
+          command: gcloud app deploy app.yaml -v <<pipeline.number>>
           
 workflows:
   version: 2
