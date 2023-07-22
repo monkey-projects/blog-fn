@@ -78,9 +78,15 @@ jobs:
 workflows:
   version: 2
   test:
+    triggers:
+      branches:
+        ignore: main
     jobs:
       - test-app
   deploy:
+    triggers:
+      branches:
+        only: main
     jobs:
       - test-app
       - uberjar
