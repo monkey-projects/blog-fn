@@ -72,15 +72,15 @@ $ gcloud app deploy
 This will automatically upload the uberjar, static files and the `app.yaml` that
 holds the application configuration.
 
-In order to deploy to production, an new tag must be created starting with `release/`.
-The part after the `release/` will then be used for the GCP AppEngine version.  For
+In order to deploy to production, an new tag must be created starting with `v`.
+The tag name will then be used for the GCP AppEngine version.  For
 example:
 ```bash
-$ git tag -m "Release 1.0" release/1.0
-$ git push origin release/1.0
+$ git tag -m "Release 1.0" v1.0
+$ git push origin v1.0
 ```
 
-This will start the build pipeline to deploy a new version called `1.0`.  Ideally, this
+This will start the build pipeline to deploy a new version called `v1.0`.  Ideally, this
 coincides with the version specified in the `deps.edn`, or the version should be passed
 on the command line.
 

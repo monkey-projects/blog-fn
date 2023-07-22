@@ -7,6 +7,9 @@ executors:
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
+
+orbs:
+  gcp: circleci/gcp-cli@3.1.0
         
 jobs:
 
@@ -32,9 +35,63 @@ jobs:
           command: clojure -X:test:junit
       - store_test_results:
           path: junit.xml
+
+  uberjar:
+    executor: clj
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "deps.edn" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Dependencies
+          command: clojure -X:jar:deps prep
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "deps.edn" }}
+      - run:
+          name: Build uberjar
+          command: clojure -X:jar:uber
+      - store_artifacts:
+          path: target/blog-fn.jar
+      - persist_to_workspace:
+          root: target/
+          paths:
+            - *.jar
+
+  deploy-gcp:
+    executor: gcp/default
+    steps:
+      - checkout
+      - gcp/setup:
+          version: 423.0.0
+      - attach_workspace:
+          at: target/
+      - run:
+          name: Deploy AppEngine version
+          command: gcloud app deploy app.yaml -v <<pipeline.git.tag>>
           
 workflows:
   version: 2
-  full-build:
+  test:
     jobs:
       - test-app
+  deploy:
+    jobs:
+      - test-app
+      - uberjar
+      - deploy-gcp:
+          requires:
+            - test-app
+            - uberjar
+          filters:
+            # Only deploy on release tags
+            tags:
+              only: /^v.*/
+            brances:
+              ignore: /.*/
+          context: gcp-blog
