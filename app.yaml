@@ -1,0 +1,13 @@
+runtime: java17
+
+handlers:
+  - url: /
+    static_files: resources/public/index.html
+    upload: resources/public/index.html
+  # - url: /css
+  #   static_dir: public/css
+  # - url: /js
+  #   static_dir: public/js
+  - url: /api/.*
+    script: auto
+    
