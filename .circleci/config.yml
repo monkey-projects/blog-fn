@@ -92,6 +92,6 @@ workflows:
             # Only deploy on release tags
             tags:
               only: /^v.*/
-            brances:
+            branches:
               ignore: /.*/
           context: gcp-blog
