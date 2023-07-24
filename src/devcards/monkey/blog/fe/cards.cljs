@@ -1,4 +1,4 @@
-(ns monkey.blog.cards
+(ns monkey.blog.fe.cards
   "Devcards entry point"
   (:require [devcards.core :as dc :include-macros true]
             ["highlight.js" :as hljs]
