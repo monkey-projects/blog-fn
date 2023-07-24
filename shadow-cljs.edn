@@ -4,14 +4,15 @@
   "src/devcards"]
 
  :dev-http {8080 "resources/public"
-            8000 "out/test"
-            8001 ["out/devcards" "resources/public"]}
+            8000 "target/js/test"
+            8001 ["target/js/devcards" "resources/public"]}
 
  :dependencies
  [[re-frame "1.3.0"]
   [cljsjs/react "18.2.0-0"]
   [cljsjs/react-dom "18.2.0-0"]
   [devcards "0.2.7"]
+  [day8.re-frame/test "0.1.5"]
   [metosin/reitit-frontend "0.7.0-alpha4"]]
 
  :builds

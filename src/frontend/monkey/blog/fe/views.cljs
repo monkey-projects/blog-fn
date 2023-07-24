@@ -10,9 +10,8 @@
   (let [u (atom nil) #_(rf/subscribe [:firebase/user])]
     [:<>
      [:div.content
-      #_(if @u
-        [:p "Welcome, " (or (:display-name @u) (:email @u))]
-        [:p "Welcome."])
+      (when @u
+        [:p "Welcome, " (or (:display-name @u) (:email @u))])
       [c/intro]
       [:div.card
        [:div.title "Welcome"]
