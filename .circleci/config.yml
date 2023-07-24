@@ -7,13 +7,19 @@ executors:
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
+  cljs:
+    docker:
+      - image: cimg/clojure:1.11.1-node
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
 
 orbs:
   gcp: circleci/gcp-cli@3.1.0
         
 jobs:
 
-  test-app:
+  test-backend:
     executor: clj
     steps:
       - checkout
@@ -35,6 +41,71 @@ jobs:
           command: clojure -X:test:junit
       - store_test_results:
           path: junit.xml
+
+  test-frontend:
+    executor: cljs
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npm-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - npm-dependencies-
+      - run:
+          name: Npm dependencies
+          command: npm install
+      - save_cache:
+          paths:
+            - ~/node_modules
+          key: npm-dependencies-{{ checksum "package.json" }}
+      - restore_cache:
+          keys:
+            - shadow-test-dependencies-{{ checksum "shadow-cljs.edn" }}
+            # fallback to using the latest cache if no exact match is found
+            - shadow-test-dependencies-
+      - run:
+          name: Compile test code
+          command: npx shadow-cljs compile test-ci
+      - save_cache:
+          paths:
+            - ~/.shadow-cljs
+          key: shadow-test-dependencies-{{ checksum "shadow-cljs.edn" }}
+      - run:
+          name: Run tests
+          command: node target/js/node-tests.js
+  
+  compile-frontend:
+    executor: cljs
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npm-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - npm-dependencies-
+      - run:
+          name: Npm dependencies
+          command: npm install
+      - save_cache:
+          paths:
+            - ~/node_modules
+          key: npm-dependencies-{{ checksum "package.json" }}
+      - restore_cache:
+          keys:
+            - shadow-dependencies-{{ checksum "shadow-cljs.edn" }}
+            # fallback to using the latest cache if no exact match is found
+            - shadow-dependencies-
+      - run:
+          name: Compile app code
+          command: npx shadow-cljs release app
+      - save_cache:
+          paths:
+            - ~/.shadow-cljs
+          key: shadow-dependencies-{{ checksum "shadow-cljs.edn" }}
+      - persist_to_workspace:
+          root: ~
+          paths:
+            - 'resources/public/js/*.js'
 
   uberjar:
     executor: clj
@@ -59,9 +130,9 @@ jobs:
       - store_artifacts:
           path: target/blog-fn.jar
       - persist_to_workspace:
-          root: target/
+          root: ~
           paths:
-            - '*.jar'
+            - 'target/*.jar'
 
   deploy-gcp:
     executor: gcp/default
@@ -70,7 +141,7 @@ jobs:
       - gcp/setup:
           version: 423.0.0
       - attach_workspace:
-          at: target/
+          at: ~
       - run:
           name: Deploy AppEngine version
           command: gcloud app deploy app.yaml -v <<pipeline.number>>
@@ -79,7 +150,11 @@ workflows:
   version: 2
   build:
     jobs:
-      - test-app
+      - test-backend
+      - test-frontend
+      - compile-frontend:
+          requires:
+            - test-frontend
       - uberjar:
           filters:
             # Only deploy on release tags
@@ -89,7 +164,8 @@ workflows:
               only: main
       - deploy-gcp:
           requires:
-            - test-app
+            - test-backend
+            - compile-frontend
             - uberjar
           filters:
             # Only deploy on release tags
