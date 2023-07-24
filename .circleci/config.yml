@@ -153,8 +153,10 @@ workflows:
       - test-backend
       - test-frontend
       - compile-frontend:
-          requires:
-            - test-frontend
+          filters:
+            # Also run for release tags
+            tags:
+              only: /^v.*/
       - uberjar:
           filters:
             # Only deploy on release tags
