@@ -13,3 +13,5 @@ pom.xml.asc
 .nrepl-port
 .cpcache/
 /war
+.shadow-cljs/
+node_modules/
