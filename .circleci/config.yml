@@ -103,7 +103,7 @@ jobs:
             - ~/.shadow-cljs
           key: shadow-dependencies-{{ checksum "shadow-cljs.edn" }}
       - persist_to_workspace:
-          root: ~
+          root: '.'
           paths:
             - 'resources/public/js/*.js'
 
@@ -130,7 +130,7 @@ jobs:
       - store_artifacts:
           path: target/blog-fn.jar
       - persist_to_workspace:
-          root: ~
+          root: '.'
           paths:
             - 'target/*.jar'
 
@@ -141,7 +141,7 @@ jobs:
       - gcp/setup:
           version: 423.0.0
       - attach_workspace:
-          at: ~
+          at: '.'
       - run:
           name: Deploy AppEngine version
           command: gcloud app deploy app.yaml -v <<pipeline.number>>
