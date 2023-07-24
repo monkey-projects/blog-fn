@@ -3,36 +3,38 @@ body {
     font-size: 10pt;
 }
 
-td {
-    font-family: Verdana, Arial;
-    font-size: 10pt;
-}
-
 .header {
+    margin-left: 150px;
     text-align: right;
     margin-bottom: 20px;
 }
 
 .footer {
+    clear: both;
     margin-top: 50px;
     border-top: solid 1px #008080;
 }
 
-.site_title {
+.footer p {
+    margin-left: 150px;
+}
+
+.site-title {
     font-size: 30pt;
     color: #008080;
 }
 
-.site_title a:hover {
+.site-title a:hover {
     text-decoration: none;
 }
 
 .content {
-    width: 650px;
+    float: left;
+    width: 500px;
 }
 
 .links {
-    margin-left: 150px;
+    float: right;
     padding: 5px;
     text-align: right;
 }
@@ -41,7 +43,7 @@ td {
     margin-bottom: 10px;
 }
 
-.links a {
+section a {
     display: block;
 }
 
@@ -51,17 +53,17 @@ td {
     margin-bottom: 5px;
 }
 
-p {
+#app {
     margin-left: 150px;
 }
 
-.entry {
-    margin: 5px 0px 10px 0px;
+.card {
+    margin: 5px 0px 10px -150px;
     padding: 10px 10px 10px 150px;
     background: #e0eee0;
 }
 
-.entry .title {
+.card .title {
     font-size: 15pt;
     background: #d0ddd0;
     margin-left: -10px;
@@ -69,25 +71,25 @@ p {
     padding-left: 10px;
 }
 
-.entry .title a {
+.card .title a {
     color: black;
 }
 
-.entry .title a:hover {
+.card .title a:hover {
     text-decoration: none;
 }
 
-.entry p {
+.card p {
     margin-left: 0px;
     margin-right: 10px;
     text-align: justify;
 }
 
-.entry .actions {
+.card .actions {
     margin-top: 10px;
 }
 
-.entry img {
+.card img {
     /*
 	float: right;
 	width: 100px;
@@ -95,21 +97,21 @@ p {
    */
 }
 
-.entry code {
+.card code {
     text-align: left;
 }
 
-.entry_time {
+.entry-time {
     font-size: 8pt;
     color: #b0bbb0;
     text-align: right;
 }
 
-.entry_time a {
+.entry-time a {
     color: #b0bbb0;
 }
 
-.journal_time {
+.journal-time {
     color: #b0bbb0;
     margin-top: 5px;
 }
@@ -140,6 +142,10 @@ a:vlink {
     border-color: #ff4040;
 }
 
+.error a {
+    color: black;
+}
+
 .notification {
     padding: 5px;
     margin-top: 10px;
@@ -151,6 +157,10 @@ a:vlink {
 
 .content .error {
     margin-left: 150px;
+}
+
+.error .retry {
+    margin-left: 5px;
 }
 
 .content .notification {

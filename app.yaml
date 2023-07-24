@@ -4,8 +4,8 @@ handlers:
   - url: /
     static_files: resources/public/index.html
     upload: resources/public/index.html
-  # - url: /css
-  #   static_dir: public/css
+  - url: /stylesheets
+    static_dir: resources/public/stylesheets
   # - url: /js
   #   static_dir: public/js
   - url: /api/.*
