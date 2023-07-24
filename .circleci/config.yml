@@ -56,7 +56,7 @@ jobs:
           command: npm install
       - save_cache:
           paths:
-            - ~/node_modules
+            - node_modules/
           key: npm-dependencies-{{ checksum "package.json" }}
       - restore_cache:
           keys:
@@ -68,7 +68,7 @@ jobs:
           command: npx shadow-cljs compile test-ci
       - save_cache:
           paths:
-            - ~/.shadow-cljs
+            - .shadow-cljs/
           key: shadow-test-dependencies-{{ checksum "shadow-cljs.edn" }}
       - run:
           name: Run tests
@@ -88,7 +88,7 @@ jobs:
           command: npm install
       - save_cache:
           paths:
-            - ~/node_modules
+            - node_modules/
           key: npm-dependencies-{{ checksum "package.json" }}
       - restore_cache:
           keys:
@@ -100,7 +100,7 @@ jobs:
           command: npx shadow-cljs release app
       - save_cache:
           paths:
-            - ~/.shadow-cljs
+            - .shadow-cljs/
           key: shadow-dependencies-{{ checksum "shadow-cljs.edn" }}
       - persist_to_workspace:
           root: '.'
