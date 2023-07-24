@@ -1,9 +1,9 @@
-(ns monkey.blog.components-cards
+(ns monkey.blog.fe.components-cards
   (:require [devcards.core :refer-macros [defcard-rg]]
             [reagent.core]
             [re-frame.db :as rdb]
-            [monkey.blog.alerts :as a]
-            [monkey.blog.components :as sut]))
+            [monkey.blog.fe.alerts :as a]
+            [monkey.blog.fe.components :as sut]))
 
 (defcard-rg notification
   "Display notification"
