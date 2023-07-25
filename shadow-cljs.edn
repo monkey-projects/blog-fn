@@ -39,4 +39,5 @@
 
   :test-ci
   {:target :node-test
-   :output-to "target/js/node-tests.js"}}}
+   :output-to "target/js/node-tests.js"
+   :main monkey.blog.fe.test.junit-runner/run-tests}}}
