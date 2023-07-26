@@ -1,7 +1,7 @@
-(ns monkey.blog.fe.test.junit-runner-test
+(ns monkey.blog.fe.test.junit-reporter-test
   (:require [cljs.test :refer-macros [deftest is testing]]
             [clojure.string :as cs]
-            [monkey.blog.fe.test.junit-runner :as sut]))
+            [monkey.blog.fe.test.junit-reporter :as sut]))
 
 (deftest update-report
   (testing "begin-run-tests"

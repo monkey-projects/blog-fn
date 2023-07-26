@@ -13,7 +13,8 @@
   [cljsjs/react-dom "18.2.0-0"]
   [devcards "0.2.7"]
   [day8.re-frame/test "0.1.5"]
-  [metosin/reitit-frontend "0.7.0-alpha4"]]
+  [metosin/reitit-frontend "0.7.0-alpha4"]
+  [lambdaisland/kaocha-cljs2 "0.2.72"]]
 
  :builds
  {:app
@@ -36,6 +37,15 @@
   :test
   {:target :browser-test
    :test-dir "target/js/test"}
+
+  :test-kaocha
+  {:target :browser-test
+   :test-dir "target/js/test-kaocha"
+   :runner-ns kaocha.cljs2.shadow-runner
+   :ns-regexp ".*-test$"
+   :devtools {:http-port 8002
+              :http-root "target/js/test-kaocha"
+              :preloads [lambdaisland.chui.remote]}}
 
   :test-ci
   {:target :node-test
