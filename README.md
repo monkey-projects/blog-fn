@@ -62,6 +62,30 @@ $ java -jar target/blog-fn.jar
 
 This will start the application at [http://localhost:8080](http://localhost:8080).
 
+## Frontend Testing
+
+The frontend is using [shadow-cljs](https://github.com/thheller/shadow-cljs) for ClojureScript
+compilation.  For testing, you can either use the built-in tester, or [Kaocha](https://github.com/lambdaisland/kaocha).
+
+For the default tester, start the `test` build:
+```bash
+$ npx shadow-cljs watch test
+# Starts server at http://localhost:8000
+```
+
+I originally added Kaocha because I wanted to generate JUnit style output for the
+tests, so CircleCI could interpret the results.  But it turns out that it's not
+supported for cljs (at least, that I could find).  So I added my own JUnit output
+reporter.  But for active development, it does offer a better UI than the default
+one.  In order to use it, you need to start [Funnel](https://github.com/lambdaisland/funnel)
+first (see the instructions on the [Kaocha-cljs2](https://github.com/lambdaisland/kaocha-cljs2) page).
+Then start the `test-kaocha` build:
+
+```bash
+$ npx shadow-cljs watch test-kaocha
+# Starts server at http://localhost:8002
+```
+
 ## Deploying
 
 To manually deploy the application, create an uberjar and invoke `gcloud`:

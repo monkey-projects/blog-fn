@@ -6,6 +6,6 @@
   (testing "returns vector"
     (is (vector? (sut/main)))))
 
-(deftest failing-test
+#_(deftest failing-test
   (testing "just to see what happens when it fails"
     (is (= 0 1))))
