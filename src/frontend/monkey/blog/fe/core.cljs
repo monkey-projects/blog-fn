@@ -1,7 +1,6 @@
 (ns monkey.blog.fe.core
   (:require [monkey.blog.fe.alerts]
             [monkey.blog.fe.components :as c]
-            #_[monkey.blog.journal.views]
             [monkey.blog.fe.login]
             [monkey.blog.fe.routing :as routing]
             [monkey.blog.fe.subs]
@@ -12,14 +11,24 @@
             [reagent.dom :as rdom]
             [reitit.frontend.easy :as rfe]))
 
+(defn welcome-user
+  "Displays a welcome message if the user is authenticated"
+  []
+  (let [u (rf/subscribe [:user])]
+    (when @u
+      [:p "Welcome, " (or (:display-name @u) (:email @u))])))
+
 (defn main []
   (let [p (rf/subscribe [:panels/current])]
     [:<>
      [c/error]
      [c/notification]
-     (if (nil? @p)
-       [:p "No panel"]
-       [@p])]))
+     [:div.content
+      [welcome-user]
+      (if (nil? @p)
+        [:p "No panel"]
+        [@p])]
+     [c/links]]))
 
 (defn ^:dev/after-load reload! []
   (routing/start!)

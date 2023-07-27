@@ -1,10 +1,18 @@
 (ns monkey.blog.fe.subs
+  "Common subscriptions, used throughout the app"
   (:require [re-frame.core :as rf]))
 
 (rf/reg-sub
- :authenticated?
+ :user
  (fn [_ _]
-   false))
+   ;; TODO Get credentials somehow
+   nil))
+
+(rf/reg-sub
+ :authenticated?
+ :<- [:user]
+ (fn [user _]
+   (some? user)))
 
 (rf/reg-sub
  :panel/current

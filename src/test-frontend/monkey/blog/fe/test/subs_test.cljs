@@ -16,3 +16,21 @@
     (testing "returns current panel from db"
       (is (map? (reset! app-db (db/set-current-panel {} :test-current))))
       (is (= :test-current @r)))))
+
+(deftest user
+  (let [u (rf/subscribe [:user])]
+
+    (testing "exists"
+      (is (some? u)))
+
+    (testing "returns always nil for now"
+      (is (nil? @u)))))
+
+(deftest authenticated?
+  (let [a (rf/subscribe [:authenticated?])]
+
+    (testing "exists"
+      (is (some? a)))
+
+    (testing "always false for now"
+      (is (false? @a)))))

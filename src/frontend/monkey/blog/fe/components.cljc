@@ -61,3 +61,8 @@
   (let [e (rf/subscribe [:alerts/notification])]
     (when @e
       [:div.notification @e])))
+
+(defn card [title & contents]
+  (into [:div.card
+         [:div.title title]]
+        contents))
