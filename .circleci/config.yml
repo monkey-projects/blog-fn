@@ -72,7 +72,9 @@ jobs:
           key: shadow-test-dependencies-{{ checksum "shadow-cljs.edn" }}
       - run:
           name: Run tests
-          command: node target/js/node-tests.js
+          command: node target/js/node-tests.js 1>junit-cljs.xml
+      - store_test_results:
+          path: junit-cljs.xml
   
   compile-frontend:
     executor: cljs
