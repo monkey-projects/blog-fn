@@ -7,9 +7,7 @@
 
 (rf/clear-subscription-cache!)
 
-(use-fixtures :each [(fn [f]
-                       (reset! app-db {})
-                       (f))])
+(use-fixtures :each {:before #(reset! app-db {})})
 
 (deftest latest-sub
   (let [l (rf/subscribe [:blog/latest])]

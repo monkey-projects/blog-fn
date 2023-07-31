@@ -9,7 +9,7 @@
     {:before #(reset! restore-point (rf/make-restore-fn))
      :after  #(@restore-point)}))
 
-(t/use-fixtures :each [(restore-re-frame)])
+(t/use-fixtures :each (restore-re-frame))
 
 (rf/clear-subscription-cache!)
 
