@@ -1,5 +1,6 @@
 (ns monkey.blog.fe.components
   (:require [monkey.blog.fe.utils :as u]
+            [monkey.blog.fe.routing :as r]
             [re-frame.core :as rf]))
 
 (defn intro []
@@ -28,9 +29,9 @@
   []
   [:section
    [:div.title "navigation"]
-   [:a {:href "/"} "weblog"]
-   [:a {:href "/admin"} "admin"]
-   [:a {:href "/journal"} "journal"]
+   [:a {:href (r/path-for ::r/root)} "weblog"]
+   #_[:a {:href "/admin"} "admin"]
+   [:a {:href (r/path-for ::r/journal)} "journal"]
    [:a {:href "/drafts"} "drafts"]
    [:a {:href "/upload"} "upload files"]])
 

@@ -1,15 +1,11 @@
 (ns monkey.blog.fe.test.events-test
   (:require [cljs.test :as t :refer-macros [deftest testing is]]
             [monkey.blog.fe.events :as sut]
+            [monkey.blog.fe.test.fixtures :as tf]
             [re-frame.core :as rf]
             [re-frame.db :refer [app-db]]))
 
-(defn- restore-re-frame []
-  (let [restore-point (atom nil)]
-    {:before #(reset! restore-point (rf/make-restore-fn))
-     :after  #(@restore-point)}))
-
-(t/use-fixtures :each (restore-re-frame))
+(t/use-fixtures :each (tf/restore-re-frame))
 
 (rf/clear-subscription-cache!)
 

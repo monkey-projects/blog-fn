@@ -13,8 +13,8 @@
     (testing "exists"
       (is (some? u)))
 
-    (testing "returns always nil for now"
-      (is (nil? @u)))))
+    (testing "returns always admin for now"
+      (is (= "admin" (:username @u))))))
 
 (deftest authenticated?
   (let [a (rf/subscribe [:authenticated?])]
@@ -22,5 +22,5 @@
     (testing "exists"
       (is (some? a)))
 
-    (testing "always false for now"
-      (is (false? @a)))))
+    (testing "always true for now"
+      (is (true? @a)))))

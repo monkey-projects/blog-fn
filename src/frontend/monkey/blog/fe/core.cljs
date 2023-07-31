@@ -17,9 +17,10 @@
 (defn welcome-user
   "Displays a welcome message if the user is authenticated"
   []
-  (let [u (rf/subscribe [:user])]
+  (let [u (rf/subscribe [:user])
+        uname (some-fn :display-name :username :email)]
     (when @u
-      [:p "Welcome, " (or (:display-name @u) (:email @u))])))
+      [:p "Welcome, " (uname @u)])))
 
 (defn main []
   (let [p (rf/subscribe [:panels/current])]
@@ -41,5 +42,6 @@
 
 (defn ^:export init []
   (rf/dispatch-sync [:initialize-db])
-  (martian/init "http://localhost:8081/swagger.json")
+  (let [loc js/location]
+    (martian/init (str (.-origin loc) "/swagger.json")))
   (reload!))

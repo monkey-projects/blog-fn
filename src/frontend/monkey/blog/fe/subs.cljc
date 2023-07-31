@@ -6,7 +6,8 @@
  :user
  (fn [_ _]
    ;; TODO Get credentials somehow
-   nil))
+   {:username "admin"
+    :roles #{:admin}}))
 
 (rf/reg-sub
  :authenticated?

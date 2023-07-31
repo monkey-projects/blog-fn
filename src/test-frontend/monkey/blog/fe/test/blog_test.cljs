@@ -2,12 +2,13 @@
   (:require [cljs.test :refer-macros [deftest testing is] :refer [use-fixtures]]
             [monkey.blog.fe.alerts :as alerts]
             [monkey.blog.fe.blog :as sut]
+            [monkey.blog.fe.test.fixtures :as tf]
             [re-frame.core :as rf]
             [re-frame.db :refer [app-db]]))
 
 (rf/clear-subscription-cache!)
 
-(use-fixtures :each {:before #(reset! app-db {})})
+(use-fixtures :each tf/reset-db)
 
 (deftest latest-sub
   (let [l (rf/subscribe [:blog/latest])]
