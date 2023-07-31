@@ -7,17 +7,26 @@
             [monkey.blog.fe.routing :as r]
             [re-frame.core :as rf]))
 
+(defn load-latest []
+  (rf/dispatch [:blog/load-latest])
+  [c/card
+   "Welcome"
+   [:p "Loading latest blog entry..."]])
+
+(defn show-latest [{:keys [title contents]}]
+  [c/card
+   title
+   [:p contents]])
+
 (defn latest-blog-entry []
   (let [l (rf/subscribe [:blog/latest])]
-    (when (nil? @l)
-      (rf/dispatch [:blog/load-latest])
-      [:p "Loading latest blog entry..."])))
+    (if (nil? @l)
+      [load-latest]
+      [show-latest @l])))
 
 (defn home []
   [:<>
    [c/intro]
-   [c/card
-    "Welcome"
-    [latest-blog-entry]]])
+   [latest-blog-entry]])
 
 (p/reg-panel ::r/root home)

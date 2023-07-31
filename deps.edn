@@ -2,9 +2,10 @@
         org.slf4j/slf4j-api {:mvn/version "2.0.7"}
         ch.qos.logback/logback-classic {:mvn/version "1.4.8"}
         metosin/reitit-core {:mvn/version "0.7.0-alpha5"}
+        metosin/reitit-middleware {:mvn/version "0.7.0-alpha5"}
         metosin/reitit-ring {:mvn/version "0.7.0-alpha5"}
         metosin/reitit-schema {:mvn/version "0.7.0-alpha5"}
-        metosin/reitit-middleware {:mvn/version "0.7.0-alpha5"}
+        metosin/reitit-swagger {:mvn/version "0.7.0-alpha5"}
         http-kit/http-kit {:mvn/version "2.7.0"}
         yogthos/config {:mvn/version "1.2.0"}
         ;; For servlet
@@ -12,7 +13,10 @@
  :paths ["src/backend" "resources"]
 
  :aliases
- {:test
+ {:dev
+  {:extra-paths ["env/dev" "dev-resources"]}
+  
+  :test
   {:extra-paths ["src/test-backend" "dev-resources"]
    :extra-deps {com.monkeyprojects/build {:mvn/version "0.1.0-SNAPSHOT"
                                           :exclusions [org.slf4j/slf4j-nop]}

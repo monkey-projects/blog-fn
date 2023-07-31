@@ -119,7 +119,13 @@
                                            :area area})]
             (is (some? id))
             (is (no-content? (-> (mock/request :delete (str "/api/entries/" area "/" id))
-                                 (test-handler))))))))))
+                                 (test-handler)))))))))
+
+  (testing "provides swagger file at `/swagger.json`"
+    (is (= 200
+           (-> (mock/request :get "/swagger.json")
+               (test-handler)
+               :status)))))
 
 (deftest -main
   (testing "starts http server"

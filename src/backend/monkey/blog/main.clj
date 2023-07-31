@@ -10,7 +10,8 @@
             [reitit
              [coercion :as rco]
              [core :as rc]
-             [ring :as rr]]
+             [ring :as rr]
+             [swagger :as rs]]
             [reitit.coercion.schema]
             [reitit.ring.coercion :as rrc]
             [reitit.ring.middleware.muuntaja :as rrmm]
@@ -32,26 +33,39 @@
   
 (defn make-router [config]
   (rr/router
-   [["/health" {:name ::health
-                :get health}]
-    ["/api" {:middleware [rrmm/format-middleware
-                          rrc/coerce-request-middleware
-                          rrc/coerce-response-middleware
-                          [config-middleware config]]
+   [["/api" {:middleware [[config-middleware config]]
              :coercion reitit.coercion.schema/coercion}
      ["/entries"
       ["/:area" {:parameters {:path {:area s/Str}}}
-       ["/:id" {:name ::entry-by-id
-                :get api/get-entry
-                :delete api/delete-entry
-                :put {:handler api/update-entry
-                      :parameters {:body BlogEntry}}
+       ["/:id" {:get
+                {:operationId :get-entry
+                 :handler api/get-entry}
+                :delete
+                {:operationId :delete-entry
+                 :handler api/delete-entry}
+                :put
+                {:operationId :update-entry
+                 :handler api/update-entry
+                 :parameters {:body BlogEntry}}
                 :parameters {:path {:id s/Str}}}]
-       ["" {:name ::create-entry
-            :post {:handler api/create-entry
-                   :parameters {:body BlogEntry}}
-            :get api/list-entries}]]]]]
-   {:data {:muuntaja mc/instance}}))
+       ["" {:post
+            {:operationId :create-entry
+             :handler api/create-entry
+             :parameters {:body BlogEntry}}
+            :get
+            {:operationId :list-entries
+             :handler api/list-entries}}]]]]
+    ["" {:no-doc true}
+     ["/health" {:name ::health
+                 :get health}]
+     ["/swagger.json" {:get
+                       {:handler (rs/create-swagger-handler)
+                        :swagger {:info {:title "Monkey Projects Blog"}
+                                  :basePath "/"}}}]]]
+   {:data {:muuntaja mc/instance
+           :middleware [rrmm/format-middleware
+                        rrc/coerce-request-middleware
+                        rrc/coerce-response-middleware]}}))
 
 (defn make-handler [config]
   (rr/ring-handler (make-router config)
