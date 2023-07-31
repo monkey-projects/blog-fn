@@ -125,6 +125,12 @@
     (is (= 200
            (-> (mock/request :get "/swagger.json")
                (test-handler)
+               :status))))
+
+  (testing "serves static files at `/site`"
+    (is (= 200
+           (-> (mock/request :get "/site/index.html")
+               (test-handler)
                :status)))))
 
 (deftest -main

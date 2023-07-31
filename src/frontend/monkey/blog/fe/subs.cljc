@@ -13,8 +13,3 @@
  :<- [:user]
  (fn [user _]
    (some? user)))
-
-(rf/reg-sub
- :panel/current
- (fn [db _]
-   (:panel/current db)))

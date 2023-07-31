@@ -7,16 +7,6 @@
 
 (rf/clear-subscription-cache!)
 
-(deftest panel-current
-  (let [r (rf/subscribe [:panel/current])]
-
-    (testing "exists"
-      (is (some? r)))
-
-    (testing "returns current panel from db"
-      (is (map? (reset! app-db (db/set-current-panel {} :test-current))))
-      (is (= :test-current @r)))))
-
 (deftest user
   (let [u (rf/subscribe [:user])]
 

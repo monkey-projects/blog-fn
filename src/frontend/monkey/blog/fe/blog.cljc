@@ -1,6 +1,8 @@
 (ns monkey.blog.fe.blog
   "Blog related functionality"
-  (:require [re-frame.core :as rf]))
+  (:require [martian.re-frame :as martian]
+            [monkey.blog.fe.alerts :as alerts]
+            [re-frame.core :as rf]))
 
 (defn latest [db]
   (::latest db))
@@ -15,14 +17,25 @@
 
 (rf/reg-event-fx
  :blog/load-latest
- (fn [db _]
+ (fn [ctx _]
    ;; TODO Send actual request to backend
-   {:dispatch [:blog/load-latest--loaded {:id "latest"
-                                          :title "Latest blog entry"
-                                          :contents "This is the latest blog entry."}]}))
+   {:dispatch
+    [::martian/request
+     :list-entries
+     {:area "blog"}
+     [:blog/load-latest--loaded]
+     [:blog/load-latest--failed]]}))
 
 (rf/reg-event-db
  :blog/load-latest--loaded
  (fn [db [_ e]]
    (println "Latest blog entry loaded:" e)
    (set-latest db e)))
+
+(rf/reg-event-db
+ :blog/load-latest--failed
+ (fn [db [_ {:keys [status body]}]]
+   (cond-> db
+     (= 404 status) (set-latest {})
+     (not= 404 status) (-> (set-latest nil)
+                           (alerts/set-error body)))))

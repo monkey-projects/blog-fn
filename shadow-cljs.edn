@@ -15,7 +15,8 @@
   [day8.re-frame/test "0.1.5"]
   [metosin/reitit-frontend "0.7.0-alpha4"]
   [lambdaisland/kaocha-cljs2 "0.2.72"]
-  [com.monkeyprojects/shadow-junit-xml "0.1.0-SNAPSHOT"]]
+  [com.monkeyprojects/shadow-junit-xml "0.1.0-SNAPSHOT"]
+  [com.github.oliyh/martian-re-frame "0.1.25"]]
 
  :builds
  {:app

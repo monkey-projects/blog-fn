@@ -35,7 +35,7 @@
   (rr/router
    [["/api" {:middleware [[config-middleware config]]
              :coercion reitit.coercion.schema/coercion}
-     ["/entries"
+     ["/entries" {:tags ["entries"]}
       ["/:area" {:parameters {:path {:area s/Str}}}
        ["/:id" {:get
                 {:operationId :get-entry
@@ -60,8 +60,9 @@
                  :get health}]
      ["/swagger.json" {:get
                        {:handler (rs/create-swagger-handler)
-                        :swagger {:info {:title "Monkey Projects Blog"}
-                                  :basePath "/"}}}]]]
+                        :swagger {:info {:title "Monkey Projects Blog"}}}}]
+     ;; Serve static resources, for dev/test purposes
+     ["/site/*" (rr/create-file-handler {:root "resources/public"})]]]
    {:data {:muuntaja mc/instance
            :middleware [rrmm/format-middleware
                         rrc/coerce-request-middleware
@@ -69,7 +70,7 @@
 
 (defn make-handler [config]
   (rr/ring-handler (make-router config)
-                   (constantly {:status 404 :body "Not found"})))
+                   (rr/create-default-handler)))
 
 ;; TODO Get config from env
 (def handler (make-handler {:storage (p/make-memory-storage)}))

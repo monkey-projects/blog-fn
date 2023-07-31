@@ -1,11 +1,14 @@
 (ns monkey.blog.fe.core
-  (:require [monkey.blog.fe.alerts]
+  (:require [martian.re-frame :as martian]
+            [monkey.blog.fe.alerts]
             [monkey.blog.fe.components :as c]
+            [monkey.blog.fe.events]
+            [monkey.blog.fe.location]
             [monkey.blog.fe.login]
             [monkey.blog.fe.routing :as routing]
             [monkey.blog.fe.subs]
             [monkey.blog.fe.panels]
-            [monkey.blog.fe.views]
+            [monkey.blog.fe.views :as v]
             [re-frame.core :as rf]
             [reagent.core :as r]
             [reagent.dom :as rdom]
@@ -26,15 +29,17 @@
      [:div.content
       [welcome-user]
       (if (nil? @p)
-        [:p "No panel"]
+        [v/home]
         [@p])]
      [c/links]]))
 
 (defn ^:dev/after-load reload! []
-  (routing/start!)
+  (rf/dispatch-sync [:routing/start])
   (let [root (js/document.getElementById "app")]
     (rdom/unmount-component-at-node root)
     (rdom/render [main] root)))
 
 (defn ^:export init []
+  (rf/dispatch-sync [:initialize-db])
+  (martian/init "http://localhost:8081/swagger.json")
   (reload!))

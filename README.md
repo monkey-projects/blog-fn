@@ -61,6 +61,11 @@ $ java -jar target/blog-fn.jar
 ```
 
 This will start the application at [http://localhost:8080](http://localhost:8080).
+When calling the backend you will run into trouble, however, because of CORS.  Since
+this will also not be a problem in production, I haven't added it to the backend.
+Instead, I made it so that the backend is able to serve the static files as well.
+You can find them under `/site/index.html`.  So start the REPL, start the server
+by running `(start-server)` and then go to [http://localhost:8081/site/index.html]([http://localhost:8081/site/index.html]).
 
 ## Frontend Testing
 

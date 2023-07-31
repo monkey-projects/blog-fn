@@ -13,13 +13,27 @@
  (fn [db [_ match]]
    (assoc db :route/current match)))
 
-(def router (f/router [["/" ::root]
-                       ["/journal" ::journal]
-                       ["/login" ::login]]))
+(defn make-router [base]
+  (cond->> [["" ::root]
+            ["/journal" ::journal]
+            ["/login" ::login]]
+    (not-empty base) (conj [base])
+    true (f/router)))
 
 (defn on-route-change [match history]
   (println "Route changed:" match)
   (rf/dispatch [:route/goto match]))
 
-(defn start! []
-  (rfe/start! router on-route-change {:use-fragment false}))
+(defn start! [base]
+  (println "Creating router for base path" base)
+  (rfe/start! (make-router base) on-route-change {:use-fragment false}))
+
+(rf/reg-event-fx
+ :routing/start
+ (fn [{:keys [db]} _]
+   {:routing/start (:base-path db)}))
+
+(rf/reg-fx
+ :routing/start
+ (fn [base]
+   (start! base)))

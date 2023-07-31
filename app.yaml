@@ -7,8 +7,8 @@ handlers:
     upload: resources/public/index.html
   - url: /stylesheets
     static_dir: resources/public/stylesheets
-  # - url: /js
-  #   static_dir: public/js
+  - url: /js
+    static_dir: resources/public/js
   - url: /api/.*
     script: auto
     
