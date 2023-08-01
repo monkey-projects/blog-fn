@@ -6,7 +6,7 @@
             [re-frame.core :as rf]
             [re-frame.db :refer [app-db]]))
 
-(t/use-fixtures :each [(tf/restore-re-frame) tf/reset-db])
+(t/use-fixtures :each (tf/restore-re-frame) tf/reset-db)
 
 (deftest on-route-change
   (testing "dispatches `route/goto` event"
