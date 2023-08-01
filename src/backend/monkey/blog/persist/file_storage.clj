@@ -3,6 +3,7 @@
    for local development purposes."
   (:require [clojure.data.json :as json]
             [clojure.java.io :as io]
+            [clojure.string :as cs]
             [monkey.blog.persist :as p]))
 
 (defn- ->file-filter [f]
@@ -11,13 +12,18 @@
       ;; TODO
       true)))
 
+(defn- id->area [id]
+  (some-> id
+          (cs/split #"#")
+          (first)))
+
 (defn- id->file [st id]
-  (io/file (:dir st) (str id ".json")))
+  (io/file (:dir st) (id->area id) (str id ".json")))
 
 (defrecord FileStorage [dir]
   p/Storage
-  (list-entries [st f]
-    (->> (.listFiles dir (->file-filter f))
+  (list-entries [st {:keys [area] :as f}]
+    (->> (.listFiles (io/file dir area) (->file-filter f))
          (seq)
          (map (comp json/read-json slurp))))
   
@@ -26,8 +32,9 @@
       (when (.canRead f)
         (json/read-json (slurp f)))))
   
-  (write-entry [st e]
-    (let [id (or (:id e) (str (random-uuid)))]
+  (write-entry [st {:keys [area] :as e}]
+    (let [id (or (:id e) (str area "#" (random-uuid)))]
+      (.mkdirs (io/file dir area))
       (spit (id->file st id) (json/write-str (assoc e :id id)))
       id))
   

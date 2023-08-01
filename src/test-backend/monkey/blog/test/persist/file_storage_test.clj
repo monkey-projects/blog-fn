@@ -25,34 +25,42 @@
 
 (use-fixtures :each temp-dir-fixture)
 
-(defn- count-files []
-  (count (.listFiles @temp-dir)))
+(defn- count-files [area]
+  (count (.listFiles (File. @temp-dir area))))
 
 (deftest file-storage
-  (let [st (sut/make-file-storage @temp-dir)]
+  (let [st (sut/make-file-storage @temp-dir)
+        area "test-area"]
     (testing "list-entries"
       
       (testing "empty if no entries"
-        (is (empty? (p/list-entries st {}))))
+        (is (empty? (p/list-entries st {:area area}))))
 
       (testing "can write and list entry"
-        (let [id (p/write-entry st {:title "test entry"
+        (let [id (p/write-entry st {:area area
+                                    :title "test entry"
                                     :contents "This is a test"})]
           (is (some? id))
-          (is (= 1 (count (p/list-entries st {:id id})))))))
+          (is (= 1 (count (p/list-entries st {:id id
+                                              :area area}))))))
+
+      (testing "groups files per area"
+        (is (empty? (p/list-entries st {:area "other-area"})))))
 
     (testing "can write and delete"
-      (let [n (count-files)
-            id (p/write-entry st {:title "another test"
+      (let [n (count-files area)
+            id (p/write-entry st {:area area
+                                  :title "another test"
                                   :contents "This is another test"})]
         (is (some? id))
-        (is (= (inc n) (count-files)) "Expected number of files to increase by one")
+        (is (= (inc n) (count-files area)) "Expected number of files to increase by one")
         (is (= id (p/delete-entry st id)))
-        (is (= n (count-files)) "Expected number of files to be same as initial")))
+        (is (= n (count-files area)) "Expected number of files to be same as initial")))
 
     (testing "read-entry"
       (testing "can read existing entries"
-        (let [id (p/write-entry st {:title "another test"
+        (let [id (p/write-entry st {:area area
+                                    :title "another test"
                                     :contents "This is yet another test"})
               r (p/read-entry st id)]
           (is (some? r))
