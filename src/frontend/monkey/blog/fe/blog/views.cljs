@@ -1,6 +1,7 @@
 (ns monkey.blog.fe.blog.views
   (:require [re-frame.core :as rf]
-            [monkey.blog.fe.components :as c]))
+            [monkey.blog.fe.components :as c]
+            [monkey.blog.fe.routing :as r]))
 
 (defn load-latest []
   (rf/dispatch [:blog/load-latest])
@@ -12,7 +13,7 @@
   [c/card
    "No Entries"
    [:p "There appear to be no blog entries yet.  Perhaps you could "
-    [:a {:href "blog/new"} "write one"] "?"]])
+    [:a {:href (r/path-for ::r/blog--new)} "write one"] "?"]])
 
 (defn show-latest [{:keys [title contents]}]
   [c/card
@@ -27,3 +28,6 @@
       (nil? @l) [load-latest]
       (empty? @l) [show-no-entries]
       :else [show-latest @l])))
+
+(defn new-entry []
+  [:p "Create new entry here"])

@@ -18,7 +18,6 @@
 (rf/reg-event-fx
  :blog/load-latest
  (fn [ctx _]
-   ;; TODO Send actual request to backend
    {:dispatch
     [::martian/request
      :list-entries
@@ -30,7 +29,7 @@
  :blog/load-latest--loaded
  (fn [db [_ e]]
    (println "Latest blog entry loaded:" e)
-   (set-latest db e)))
+   (set-latest db (last (:body e)))))
 
 (rf/reg-event-db
  :blog/load-latest--failed

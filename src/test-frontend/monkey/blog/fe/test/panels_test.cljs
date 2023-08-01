@@ -13,8 +13,7 @@
       (is (some? p)))
 
     (testing "returns all panels"
-      (is (empty? (reset! app-db {})))
-      (sut/reg-panel ::test :test-panel)
+      (is (not-empty (reset! app-db (sut/reg-panel {} ::test :test-panel))))
       (is (= {::test :test-panel} @p)))))
 
 (deftest panels-current
@@ -28,6 +27,6 @@
       (is (nil? @c)))
 
     (testing "returns current panel symbol for route"
-      (is (some? (reset! app-db {:route/current {:data {:name ::test}}})))
-      (sut/reg-panel ::test :test-panel)
+      (is (some? (reset! app-db (-> {:route/current {:data {:name ::test}}}
+                                    (sut/reg-panel ::test :test-panel)))))
       (is (= :test-panel @c)))))

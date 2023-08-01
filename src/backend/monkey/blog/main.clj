@@ -80,9 +80,15 @@
 (defmulti make-storage :storage-type)
 
 (defmethod make-storage :default [_]
+  (log/warn "No storage type specified, using default (memory) implementation")
+  (p/make-memory-storage))
+
+(defmethod make-storage :memory [_]
+  (log/info "Using memory storage")
   (p/make-memory-storage))
 
 (defmethod make-storage :file [{:keys [storage-dir]}]
+  (log/info "Using file storage with location" storage-dir)
   (pf/make-file-storage storage-dir))
 
 (defn make-handler [config]

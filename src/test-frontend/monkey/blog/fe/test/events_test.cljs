@@ -5,7 +5,7 @@
             [re-frame.core :as rf]
             [re-frame.db :refer [app-db]]))
 
-(t/use-fixtures :each (tf/restore-re-frame))
+(t/use-fixtures :each (tf/restore-re-frame) tf/reset-db)
 
 (rf/clear-subscription-cache!)
 
@@ -24,4 +24,8 @@
                                                     :path "/base/index.html"})))
     (rf/dispatch-sync [:initialize-db])
     (is (= "/base"
-           (:base-path @app-db)))))
+           (:base-path @app-db))))
+
+  (testing "initializes panels"
+    (rf/dispatch-sync [:initialize-db])
+    (is (some? (:monkey.blog.fe.panels/panels @app-db)))))

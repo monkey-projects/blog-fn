@@ -2,8 +2,8 @@
   (:require [re-frame.core :as rf]
             [re-frame.db :as rdb]))
 
-(defn reg-panel [route-name panel]
-  (swap! rdb/app-db assoc-in [::panels route-name] panel))
+(defn reg-panel [db route-name panel]
+  (assoc-in db [::panels route-name] panel))
 
 (rf/reg-sub
  :panels/all
