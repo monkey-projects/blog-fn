@@ -5,6 +5,7 @@
             [monkey.blog
              [api :as api]
              [persist :as p]]
+            [monkey.blog.persist.file-storage :as pf]
             [muuntaja.core :as mc]
             [org.httpkit.server :as http]
             [reitit
@@ -68,14 +69,28 @@
                         rrc/coerce-request-middleware
                         rrc/coerce-response-middleware]}}))
 
+(def default-config {:port 8080
+                     :storage-type :memory})
+
+(defn env->config [env]
+  (-> default-config 
+      (merge (select-keys env [:port :storage-type :storage-dir]))
+      (update :storage-type keyword)))
+
+(defmulti make-storage :storage-type)
+
+(defmethod make-storage :default [_]
+  (p/make-memory-storage))
+
+(defmethod make-storage :file [{:keys [storage-dir]}]
+  (pf/make-file-storage storage-dir))
+
 (defn make-handler [config]
-  (rr/ring-handler (make-router config)
+  ;; Create new storage or use the one from config (mainly for testing purposes)
+  (rr/ring-handler (make-router (update config :storage #(or % (make-storage config))))
                    (rr/create-default-handler)))
 
-;; TODO Get config from env
-(def handler (make-handler {:storage (p/make-memory-storage)}))
-
 (defn -main [& args]
-  (let [opts (merge {:port 8080} (select-keys env [:port]))]
+  (let [opts (env->config env)]
     (log/info "Starting HTTP server at port" (:port opts))
-    (http/run-server handler opts)))
+    (http/run-server (make-handler opts) opts)))
