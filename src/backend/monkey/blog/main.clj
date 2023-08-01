@@ -30,6 +30,7 @@
 
 (s/defschema BlogEntry
   {(s/optional-key :title) (s/maybe s/Str)
+   (s/optional-key :time) (s/maybe s/Str)
    :contents s/Str})
   
 (defn make-router [config]

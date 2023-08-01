@@ -15,7 +15,9 @@
   (-> db
       (p/reg-panel ::r/root v/home)
       (p/reg-panel ::r/blog--new bv/new-entry)
-      (p/reg-panel ::r/journal jv/overview)))
+      (p/reg-panel ::r/journal jv/overview)
+      (p/reg-panel ::r/journal--new jv/new-entry)
+      (p/reg-panel ::r/journal--edit jv/edit-entry)))
 
 (rf/reg-event-fx
  :initialize-db
