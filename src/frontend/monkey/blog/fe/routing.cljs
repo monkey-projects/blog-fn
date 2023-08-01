@@ -22,7 +22,8 @@
              [["/new" {:name ::blog--new}]]]
             ["/journal"
              [["" {:name ::journal}]
-              ["/new" {:name ::journal--new}]]]
+              ["/new" {:name ::journal--new}]
+              ["/search" {:name ::journal--search}]]]
             ["/drafts"
              [["" {:name ::drafs}]
               ["/new" {:name ::drafs--new}]]]

@@ -12,9 +12,12 @@
       ;; TODO
       true)))
 
+(def separator "$")
+(def separator-regex #"\$")
+
 (defn- id->area [id]
   (some-> id
-          (cs/split #"#")
+          (cs/split separator-regex)
           (first)))
 
 (defn- id->file [st id]
@@ -33,7 +36,7 @@
         (json/read-json (slurp f)))))
   
   (write-entry [st {:keys [area] :as e}]
-    (let [id (or (:id e) (str area "#" (random-uuid)))]
+    (let [id (or (:id e) (str area separator (random-uuid)))]
       (.mkdirs (io/file dir area))
       (spit (id->file st id) (json/write-str (assoc e :id id)))
       id))
