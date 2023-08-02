@@ -1,6 +1,5 @@
 (ns monkey.blog.fe.events
   (:require [re-frame.core :as rf]
-            #_[ajax.core :as ajax]
             [monkey.blog.fe.alerts :as a]
             [monkey.blog.fe.config :refer [debug?]]
             [monkey.blog.fe.db :as db]
