@@ -32,7 +32,7 @@
 
 (deftest handler
   (testing "is a fn"
-    (is (fn? sut/handler)))
+    (is (fn? test-handler)))
 
   (testing "GET /health"
     (is (success? (-> (mock/request :get "/health")
@@ -132,6 +132,21 @@
            (-> (mock/request :get "/site/index.html")
                (test-handler)
                :status)))))
+
+(deftest env->config
+  (testing "memory storage by default"
+    (is (= :memory (:storage-type (sut/env->config {})))))
+
+  (testing "converts `storage-type` to keyword"
+    (is (= :file (-> {:storage-type "file"}
+                     (sut/env->config)
+                     :storage-type))))
+
+  (testing "adds http port"
+    (is (= 1234 (:port (sut/env->config {:port 1234})))))
+
+  (testing "uses http port `8080` by default"
+    (is (= 8080 (:port (sut/env->config {}))))))
 
 (deftest -main
   (testing "starts http server"

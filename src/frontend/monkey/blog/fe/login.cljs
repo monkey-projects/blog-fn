@@ -1,7 +1,6 @@
 (ns monkey.blog.fe.login
   (:require [re-frame.core :as rf]
             [monkey.blog.fe.components :as c]
-            [monkey.blog.fe.panels :as p]
             [monkey.blog.fe.routing :as r]
             [monkey.blog.fe.utils :as u]))
 
@@ -19,13 +18,6 @@
  :login/password
  (fn [db [_ user]]
    (assoc-in db [::credentials :password] user)))
-
-(rf/reg-event-fx
- :login
- (fn [{:keys [db]} _]
-   (let [{:keys [username password]} (::credentials db)]
-     {:firebase/email-sign-in {:email username
-                               :password password}})))
 
 (defn login-panel []
   (let [creds (rf/subscribe [:login/credentials])]
@@ -54,5 +46,3 @@
         " | "
         [:a {:href "/"} "cancel"]]
        [c/error]]]]))
-
-(p/reg-panel ::r/login login-panel)

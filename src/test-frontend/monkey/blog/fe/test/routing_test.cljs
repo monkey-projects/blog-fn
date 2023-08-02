@@ -11,8 +11,10 @@
 (deftest on-route-change
   (testing "dispatches `route/goto` event"
     (rf-test/run-test-sync
-     (is (nil? (sut/on-route-change {:name :test-match} :test-history)))
-     (is (= :test-match (:route/current @app-db))))))
+     (is (nil? (sut/on-route-change {:data {:name :test-match}} :test-history)))
+     (is (= :test-match (-> (:route/current @app-db)
+                            :data
+                            :name))))))
 
 (deftest current-sub
   (let [c (rf/subscribe [:route/current])]

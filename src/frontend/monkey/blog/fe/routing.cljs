@@ -18,7 +18,15 @@
 
 (defn make-router [base]
   (cond->> [["" {:name ::root}]
-            ["/journal" {:name ::journal}]
+            ["/blog"
+             [["/new" {:name ::blog--new}]]]
+            ["/journal"
+             [["" {:name ::journal}]
+              ["/new" {:name ::journal--new}]
+              ["/search" {:name ::journal--search}]]]
+            ["/drafts"
+             [["" {:name ::drafs}]
+              ["/new" {:name ::drafs--new}]]]
             ["/login" {:name ::login}]]
     (not-empty base) (conj [base])
     true (f/router)))
@@ -30,7 +38,7 @@
 
 (defn on-route-change [match history]
   (println "Route changed:" match)
-  (rf/dispatch [:route/goto (:name match)]))
+  (rf/dispatch [:route/goto match]))
 
 (defn start! [router]
   (rfe/start! router on-route-change {:use-fragment false}))

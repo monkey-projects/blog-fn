@@ -25,7 +25,7 @@
 
 (deftest load-latest--loaded-evt
   (testing "sets latest blog entry in db"
-    (rf/dispatch-sync [:blog/load-latest--loaded {:id :latest}])
+    (rf/dispatch-sync [:blog/load-latest--loaded {:body [{:id :latest}]}])
     (is (= {:id :latest} (sut/latest @app-db)))))
 
 (deftest load-latest--failed-evt
