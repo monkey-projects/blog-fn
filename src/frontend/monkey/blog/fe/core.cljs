@@ -3,6 +3,7 @@
             [reagent.core :as reagent]
             [reagent.dom :as rdom]
             [re-frame.core :as rf]
+            [martian.re-frame :as martian]
             [monkey.blog.fe.cookies :as cookies]
             [monkey.blog.fe.config :as config]
             [monkey.blog.fe.routes :as routes]
@@ -32,6 +33,8 @@
     (rf/dispatch-sync [::e/initialize-db])
     (rf/dispatch-sync [:routing/start])
     (dev-setup)
+    (let [loc js/location]
+      (martian/init (str (.-origin loc) "/swagger.json")))
     (reload!)
     (catch js/Object ex
       (println "Failed to initialize:" ex))))

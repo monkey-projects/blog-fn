@@ -11,7 +11,7 @@
 
 (rf/clear-subscription-cache!)
 
-(use-fixtures :each (tf/restore-re-frame) tf/clear-db)
+(use-fixtures :each (tf/restore-re-frame) tf/reset-db)
 
 (deftest initialize-db
   (testing "marks authenticated if cookie found"
@@ -22,105 +22,95 @@
 
 (deftest route-selected
   (testing "changes current panel"
-    (rf/dispatch-sync [:route/selected :test-route]) => nil?
-    (is (contains? (db/current-panel @app-db)
-                   {:panel :test-route})))
+    (rf/dispatch-sync [:route/selected :test-route])
+    (is (= :test-route (-> (db/current-panel @app-db) :panel))))
 
   (testing "stores any parameters"
-    (rf/dispatch-sync [:route/selected :test-route :arg1 :arg2]) => nil?
-    (is (contains? (db/current-panel @app-db)
-                   {:panel :test-route
-                    :params [:arg1 :arg2]}))))
+    (rf/dispatch-sync [:route/selected :test-route :arg1 :arg2])
+    (is (= [:arg1 :arg2] (-> (db/current-panel @app-db) :params)))))
 
 (deftest journal-load-months
   (testing "sends request to backend"
     (let [e (th/catch-fx :http-xhrio)]
-      (rf/dispatch-sync [:journal/load-months]) => nil?
-      @e => (just
-             [(contains {:method :get
-                         :uri "api/journal/months"})]))))
+      (rf/dispatch-sync [:journal/load-months])
+      (is (= {:method :get
+              :uri "api/journal/months"}
+             (-> @e (first) (select-keys [:method :uri])))))))
 
 (deftest journal-months-loaded
   (testing "sets months in db"
-    (rf/dispatch-sync [:journal/months-loaded ..months..]) => nil?
-    (db/journal-months @app-db) => ..months..))
-
-(deftest journal-load-months-failed
-  (future-testing "reports errors"))
+    (rf/dispatch-sync [:journal/months-loaded :test-months])
+    (is (= :test-months (db/journal-months @app-db)))))
 
 (deftest journal-set-period
-  (testing "sets period in db"
-    (rf/dispatch-sync [:journal/set-period ..period..])
-    (db/journal-period @app-db) => ..period..)
+  (let [e (th/catch-fx :dispatch)]
+    (rf/dispatch-sync [:journal/set-period :test-period])
+    
+    (testing "sets period in db"
+      (is (= :test-period (db/journal-period @app-db))))
 
-  (testing "sets selected panel to `:journal`"
-    (rf/dispatch-sync [:journal/set-period ..period..])
-    (db/current-panel @app-db) => (contains {:panel :journal}))
+    (testing "sets selected panel to `:journal`"
+      (is (= :journal (-> (db/current-panel @app-db) :panel))))
 
-  (testing "starts loading entries"
-    (let [e (th/catch-fx :dispatch)]
-      (rf/dispatch-sync [:journal/set-period ..period..])
-      @e => (just [[:journal/load-entries]]))))
+    (testing "starts loading entries"
+      (is (= [[:journal/load-entries]] @e)))))
 
 (deftest journal-load-entries
   (testing "sends request to backend for current period"
     (let [e (th/catch-fx :http-xhrio)]
-      (reset! app-db (db/set-journal-period {} "202005")) => truthy
-      (rf/dispatch-sync [:journal/load-entries]) => nil?
-      @e => (just
-             [(contains {:method :get
-                         :uri "api/journal/month/202005"})])))
+      (is (some? (reset! app-db (db/set-journal-period {} "202005"))))
+      (rf/dispatch-sync [:journal/load-entries])
+      (is (= {:method :get
+              :uri "api/journal/month/202005"}
+             (-> @e (first) (select-keys [:method :uri]))))))
   
   (testing "sends request to backend when no period"
     (let [e (th/catch-fx :http-xhrio)]
-      (rf/dispatch-sync [:journal/load-entries]) => nil?
-      @e => (just
-             [(contains {:method :get
-                         :uri "api/journal/month"})]))))
+      (rf/dispatch-sync [:journal/load-entries])
+      (is (= {:method :get
+              :uri "api/journal/month"}
+             (-> @e (first) (select-keys [:method :uri])))))))
 
 (deftest journal-entries-loaded
   (testing "sets entries in db"
-    (rf/dispatch-sync [:journal/entries-loaded ..entries..]) => nil?
-    (db/journal-entries @app-db) => ..entries..))
-
-(deftest journal-load-entries-failed
-  (future-testing "reports errors"))
+    (rf/dispatch-sync [:journal/entries-loaded :test-entries])
+    (is (= :test-entries (db/journal-entries @app-db)))))
 
 (deftest journal-edit
   (testing "sets given journal entry as current"
-    (let [entry {:id ..id..}]
-      (reset! app-db (db/set-journal-entries {} [entry])) => truthy
+    (let [entry {:id :test-id}]
+      (is (some? (reset! app-db (db/set-journal-entries {} [entry]))))
       (rf/dispatch-sync [:journal/edit (:id entry)])
-      (db/current-journal @app-db) => entry))
+      (is (= entry (db/current-journal @app-db)))))
 
   (testing "sets current panel to `:journal/edit`"
-    (reset! app-db (db/set-journal-entries {} [{:id ..id..}])) => truthy
-    (rf/dispatch-sync [:journal/edit ..id..])
-    (db/current-panel @app-db) => (contains {:panel :journal/edit})))
+    (is (some? (reset! app-db (db/set-journal-entries {} [{:id :test-id}]))))
+    (rf/dispatch-sync [:journal/edit :test-id])
+    (is (= :journal/edit (-> (db/current-panel @app-db) :panel)))))
 
 (deftest journal-view
   (testing "if current entry is same, does not load from backend"
     (let [e (th/catch-fx :http-xhrio)]
-      (reset! app-db (db/set-current-journal {} {:id ..id.. :body "test entry"})) => truthy
-      (rf/dispatch-sync [:journal/view ..id..])
-      @e => empty?))
+      (is (some? (reset! app-db (db/set-current-journal {} {:id :test-id :body "test entry"}))))
+      (rf/dispatch-sync [:journal/view :test-id])
+      (is (empty? @e))))
   
   (testing "if current entry is different, clears it and loads from backend"
     (let [e (th/catch-fx :http-xhrio)
-          id 1324]
-      (reset! app-db (db/set-current-journal {} {:id ..other-id.. :body "test entry"})) => truthy
+          id "1324"]
+      (is (some? (reset! app-db (db/set-current-journal {} {:id :other-id :body "test entry"}))))
       (rf/dispatch-sync [:journal/view id])
-      @e => (just [(contains {:method :get
-                              :uri "api/journal/1324"})])))
+      (is (= {:method :get
+              :uri "api/journal/1324"} (-> @e (first) (select-keys [:method :uri]))))))
 
   (testing "sets current panel to `:journal/view`"
-    (rf/dispatch-sync [:journal/view ..id..])
-    (db/current-panel @app-db) => (contains {:panel :journal/view})))
+    (rf/dispatch-sync [:journal/view :test-id])
+    (is (= :journal/view (-> (db/current-panel @app-db) :panel)))))
 
 (deftest journal-entry-loaded
   (testing "sets current entry"
-    (rf/dispatch-sync [:journal/entry-loaded ..test-entry..])
-    (db/current-journal @app-db) => ..test-entry..))
+    (rf/dispatch-sync [:journal/entry-loaded :test-entry])
+    (is (= :test-entry (db/current-journal @app-db)))))
 
 (deftest journal-new
   (testing "sets new journal entry as current"
