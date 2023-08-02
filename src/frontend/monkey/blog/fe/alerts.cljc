@@ -28,8 +28,3 @@
   (-> db
       (clear-error)
       (clear-notification)))
-
-(rf/reg-sub
- :alerts/error
- (fn [db _]
-   (error db)))

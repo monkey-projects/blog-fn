@@ -1,47 +1,37 @@
 (ns monkey.blog.fe.core
-  (:require [martian.re-frame :as martian]
-            [monkey.blog.fe.alerts]
-            [monkey.blog.fe.components :as c]
-            [monkey.blog.fe.events]
-            [monkey.blog.fe.location]
-            [monkey.blog.fe.login]
-            [monkey.blog.fe.routing :as routing]
-            [monkey.blog.fe.subs]
-            [monkey.blog.fe.panels]
-            [monkey.blog.fe.views :as v]
-            [re-frame.core :as rf]
-            [reagent.core :as r]
+  (:require [cljsjs.react]
+            [reagent.core :as reagent]
             [reagent.dom :as rdom]
-            [reitit.frontend.easy :as rfe]))
+            [re-frame.core :as rf]
+            [monkey.blog.fe.cookies :as cookies]
+            [monkey.blog.fe.config :as config]
+            [monkey.blog.fe.routes :as routes]
+            [monkey.blog.fe.events :as e]
+            [monkey.blog.fe.subs]
+            [monkey.blog.fe.blog.events]
+            [monkey.blog.fe.blog.subs]
+            [monkey.blog.fe.login.events]
+            [monkey.blog.fe.drafts.events]
+            [monkey.blog.fe.drafts.subs]
+            [monkey.blog.fe.uploads.events]
+            [monkey.blog.fe.uploads.subs]
+            [monkey.blog.fe.views :as v]))
 
-(defn welcome-user
-  "Displays a welcome message if the user is authenticated"
-  []
-  (let [u (rf/subscribe [:user])
-        uname (some-fn :display-name :username :email)]
-    (when @u
-      [:p "Welcome, " (uname @u)])))
-
-(defn main []
-  (let [p (rf/subscribe [:panels/current])]
-    [:<>
-     [c/error]
-     [c/notification]
-     [:div.content
-      [welcome-user]
-      (if (nil? @p)
-        [v/home]
-        [@p])]
-     [c/links]]))
+(defn dev-setup []
+  (when config/debug?
+    (println "dev mode")))
 
 (defn ^:dev/after-load reload! []
-  (rf/dispatch-sync [:routing/start])
-  (let [root (js/document.getElementById "app")]
-    (rdom/unmount-component-at-node root)
-    (rdom/render [main] root)))
+  (rf/clear-subscription-cache!)
+  (let [root-el (.getElementById js/document "app")]
+    (rdom/unmount-component-at-node root-el)
+    (rdom/render [v/main-panel] root-el)))
 
-(defn ^:export init []
-  (rf/dispatch-sync [:initialize-db])
-  (let [loc js/location]
-    (martian/init (str (.-origin loc) "/swagger.json")))
-  (reload!))
+(defn init []
+  (try
+    (rf/dispatch-sync [::e/initialize-db])
+    (rf/dispatch-sync [:routing/start])
+    (dev-setup)
+    (reload!)
+    (catch js/Object ex
+      (println "Failed to initialize:" ex))))
