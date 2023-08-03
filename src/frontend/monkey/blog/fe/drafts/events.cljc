@@ -1,6 +1,6 @@
 (ns monkey.blog.fe.drafts.events
   (:require [re-frame.core :as rf]
-            #_[ajax.core :as ajax]
+            [martian.re-frame :as martian]
             [monkey.blog.fe.utils :as u]
             [monkey.blog.fe.drafts.db :as db]
             [monkey.blog.fe.db :as cdb]
@@ -9,11 +9,10 @@
 (rf/reg-event-fx
  :drafts/load
  (fn [ctx _]
-   {:http-xhrio {} #_{:method :get
-                    :uri "api/drafts"
-                    :response-format u/json-response-format
-                    :on-success [:drafts/loaded]
-                    :on-failure [:drafts/load-failed]}}))
+   {::martian/request [:list-entries
+                       {:area "drafts"}
+                       [:drafts/loaded]
+                       [:drafts/load-failed]]}))
 
 (rf/reg-event-db
  :drafts/loaded
@@ -44,12 +43,11 @@
 (rf/reg-event-fx
  :draft/delete
  (fn [{:keys [db]} [_ draft]]
-   {:http-xhrio {} #_{:method :delete
-                   :uri (str "api/drafts/" (:id draft))
-                   :format u/json-request-format
-                   :response-format u/json-response-format
-                   :on-success [:draft/deleted]
-                   :on-failure [:draft/delete-failed]}
+   {::martian/request [:delete-entry
+                       {:area "drafts"
+                        :id (:id draft)}
+                       [:draft/deleted]
+                       [:draft/delete-failed]]
     :db (a/clear-all db)}))
 
 (rf/reg-event-db
@@ -69,16 +67,12 @@
  (fn [{:keys [db]} _]
    (let [d (db/current-draft db)
          new? (nil? (:id d))]
-     {:http-xhrio {}
-      #_(cond-> {:params (select-keys d [:id :title :body])
-               :format u/json-request-format
-               :response-format u/json-response-format
-               :on-success [:draft/saved]
-               :on-failure [:draft/save-failed]}
-        new? (assoc :method :post
-                    :uri "api/drafts")
-        (not new?) (assoc :method :put
-                          :uri (str "api/drafts/" (:id d))))
+     {::martian/request [(if new? :create-entry :update-entry)
+                         (-> d
+                             (select-keys [:id :title :contents])
+                             (merge {:area "drafts"}))
+                         [:draft/saved]
+                         [:draft/save-failed]]
       :db (a/clear-all db)})))
 
 (defn- add-or-replace-draft [db {:keys [id] :as upd}]
@@ -102,12 +96,10 @@
 (rf/reg-event-fx
  :draft/publish
  (fn [ctx [_ draft]]
-   {:http-xhrio {} #_{:method :post
-                   :uri (str "api/drafts/" (:id draft) "/publish")
-                   :format u/json-request-format
-                   :response-format u/json-response-format
-                   :on-success [:draft/published]
-                   :on-failure [:draft/publish-failed]}}))
+   {::martian/request [:publish-draft
+                       {:id (:id draft)}
+                       [:draft/published]
+                       [:draft/publish-failed]]}))
 
 (rf/reg-event-db
  :draft/published
