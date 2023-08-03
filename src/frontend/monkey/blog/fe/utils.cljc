@@ -20,6 +20,7 @@
 
 (defn extract-error [e]
   (or (:status-text e)
+      (:body e)
       (str e)))
 
 (defn pad-left
