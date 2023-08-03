@@ -37,7 +37,8 @@
   "Retrieves current timezone offset"
   []
   (let [o (-> (js/Date.)
-              (.getTimezoneOffset))
+              (.getTimezoneOffset)
+              (-))
         h (int (/ o 60))
         m (mod o 60)]
     (str (sign h) (u/pad-zero (u/abs h) 2) ":" (u/pad-zero m 2))))

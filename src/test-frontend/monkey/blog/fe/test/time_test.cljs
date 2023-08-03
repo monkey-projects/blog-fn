@@ -30,3 +30,7 @@
 (deftest format-month
   (testing "formats month and year"
     (is (= "August 2023" (sut/format-month (sut/make-date 2023 8 1))))))
+
+(deftest tz-offset
+  (testing "returns timezone offset"
+    (is (re-matches #"(\+|-)\d{2}:\d{2}" (sut/tz-offset)))))

@@ -31,15 +31,15 @@
 
 (deftest journal-load-months
   (testing "sends request to backend"
-    (let [e (th/catch-fx :http-xhrio)]
+    (let [e (th/catch-http)]
       (rf/dispatch-sync [:journal/load-months])
-      (is (= {:method :get
-              :uri "api/journal/months"}
-             (-> @e (first) (select-keys [:method :uri])))))))
+      (is (= :list-months
+             (ffirst @e)))
+      (is (= "journal" (-> @e (first) (second) :area))))))
 
 (deftest journal-months-loaded
   (testing "sets months in db"
-    (rf/dispatch-sync [:journal/months-loaded :test-months])
+    (rf/dispatch-sync [:journal/months-loaded {:body :test-months}])
     (is (= :test-months (db/journal-months @app-db)))))
 
 (deftest journal-set-period
@@ -57,19 +57,21 @@
 
 (deftest journal-load-entries
   (testing "sends request to backend for current period"
-    (let [e (th/catch-fx :http-xhrio)]
+    (let [e (th/catch-http)]
       (is (some? (reset! app-db (db/set-journal-period {} "202005"))))
       (rf/dispatch-sync [:journal/load-entries])
-      (is (= {:method :get
-              :uri "api/journal/month/202005"}
-             (-> @e (first) (select-keys [:method :uri]))))))
+      (is (= :list-entries (ffirst @e)))
+      (is (= {:area "journal"
+              :period "202005"}
+             (-> @e (first) (second))))))
   
   (testing "sends request to backend when no period"
-    (let [e (th/catch-fx :http-xhrio)]
+    (let [e (th/catch-http)]
+      (is (empty? (reset! app-db {})))
       (rf/dispatch-sync [:journal/load-entries])
-      (is (= {:method :get
-              :uri "api/journal/month"}
-             (-> @e (first) (select-keys [:method :uri])))))))
+      (is (= :list-entries (ffirst @e)))
+      (is (= {:area "journal"}
+             (-> @e (first) (second)))))))
 
 (deftest journal-entries-loaded
   (testing "sets entries in db"
@@ -90,18 +92,18 @@
 
 (deftest journal-view
   (testing "if current entry is same, does not load from backend"
-    (let [e (th/catch-fx :http-xhrio)]
+    (let [e (th/catch-http)]
       (is (some? (reset! app-db (db/set-current-journal {} {:id :test-id :body "test entry"}))))
       (rf/dispatch-sync [:journal/view :test-id])
       (is (empty? @e))))
   
   (testing "if current entry is different, clears it and loads from backend"
-    (let [e (th/catch-fx :http-xhrio)
+    (let [e (th/catch-http)
           id "1324"]
       (is (some? (reset! app-db (db/set-current-journal {} {:id :other-id :body "test entry"}))))
       (rf/dispatch-sync [:journal/view id])
-      (is (= {:method :get
-              :uri "api/journal/1324"} (-> @e (first) (select-keys [:method :uri]))))))
+      (is (= :get-entry (ffirst @e)))
+      (is (= {:id id} (-> @e (first) (second))))))
 
   (testing "sets current panel to `:journal/view`"
     (rf/dispatch-sync [:journal/view :test-id])
@@ -119,43 +121,37 @@
 
   (testing "sets current panel to `:journal/edit`"
     (rf/dispatch-sync [:journal/new :test-id])
-    (is (= :journal/edit (-> (db/current-panel @app-db) :pandl)))))
+    (is (= :journal/edit (-> (db/current-panel @app-db) :panel)))))
 
 (deftest journal-save
-  (testing "saves new to backend using `:post`"
-    (let [e (th/catch-fx :http-xhrio)
-          curr {:body "test body"}]
+  (testing "saves new to backend"
+    (let [e (th/catch-http)
+          curr {:contents "test body"}]
       (is (some? (reset! app-db (db/set-current-journal {} curr))))
       (rf/dispatch-sync [:journal/save])
-      (is (= 1 (count @e)))
-      (is (contains? (first @e)
-                     {:method :post
-                :uri "api/journal"
-                :params curr}))))
+      (is (= :create-entry (ffirst @e)))
+      (is (= curr (-> @e (first) (second))))))
   
-  (testing "saves existing to backend using `:put`"
-    (let [e (th/catch-fx :http-xhrio)
-          curr {:id 1234 :body "test body"}]
+  (testing "saves existing to backend with id"
+    (let [e (th/catch-http)
+          curr {:id 1234 :contents "test body"}]
       (is (some? (reset! app-db (db/set-current-journal {} curr))))
       (rf/dispatch-sync [:journal/save])
-      (is (= 1 (count @e)))
-      (is (contains? (first @e) {:method :put
-                                 :uri "api/journal/1234"}))
-      (is (contains? (-> @e (first) :params) curr))))
+      (is (= :update-entry (ffirst @e)))
+      (is (= curr (-> @e (first) (second))))))
 
   (testing "adds timezone to time"
-    (let [e (th/catch-fx :http-xhrio)
-          curr {:id 1234 :body "test body" :created-on "2021-05-10T11:37:00"}]
+    (let [e (th/catch-http)
+          curr {:id 1234 :contents "test body" :created-on "2021-05-10T11:37:00"}]
       (is (some? (reset! app-db (db/set-current-journal {} curr))))
       (rf/dispatch-sync [:journal/save])
-      (is (= 1 (count @e)))
       (is (= "2021-05-10T11:37:00+02:00" (-> @e
                                              (first)
-                                             :params
+                                             (second)
                                              :created-on)))))
 
   (testing "does not add timezone if no time"
-    (let [e (th/catch-fx :http-xhrio)
+    (let [e (th/catch-http)
           curr {:id 1234 :body "test body"}]
       (is (some? (reset! app-db (db/set-current-journal {} curr))))
       (rf/dispatch-sync [:journal/save])
@@ -201,7 +197,7 @@
 (deftest journal-save-failed
   (testing "reports errors"
     (rf/dispatch-sync [:journal/save-failed "test error"])
-    (is (re-matches #"test error" (db/error @app-db))))
+    (is (re-matches #".*test error.*" (db/error @app-db))))
 
   (testing "clears notification"
     (is (some? (reset! app-db (a/set-notification {} "test notification"))))
@@ -219,12 +215,13 @@
 
 (deftest journal-delete
   (testing "sends delete request for current entry"
-    (let [e (th/catch-fx :http-xhrio)]
+    (let [e (th/catch-http)]
       (is (some? (reset! app-db (db/set-current-journal {} {:id "test-id"}))))
       (rf/dispatch-sync [:journal/delete])
-      (is (contains? (first @e)
-                     {:method :delete
-                     :uri "api/journal/test-id"})))))
+      (is (= :delete-entry (ffirst @e)))
+      (is (= {:id "test-id"
+              :area "journal"}
+             (-> @e (first) (second)))))))
 
 (deftest journal-delete-succeeded
   (testing "redirects to overview"
@@ -267,16 +264,16 @@
 
 (deftest journal-search
   (testing "sends request to backend with filter words"
-    (let [e (th/catch-fx :http-xhrio)]
+    (let [e (th/catch-http)]
       (is (some? (reset! app-db (db/set-filter-words {} "word-1 word-2"))))
       (rf/dispatch-sync [:journal/search])
-      (is (contains? {:method :get
-                              :uri "api/journal"
-                              :params {:words ["word-1" "word-2"]}}
-                     (first @e)))))
+      (is (= :search-entry (ffirst @e)))
+      (is (= {:words ["word-1" "word-2"]
+              :area "journal"}
+             (-> @e (first) (second))))))
 
   (testing "clears errors"
-    (th/simulate-fx :http-xhrio)
+    (th/simulate-http)
     (is (some? (reset! app-db (db/set-error {} "test error"))))
     (rf/dispatch-sync [:journal/search])
     (is (nil? (db/error @app-db)))))
@@ -284,7 +281,7 @@
 (deftest journal-search-failed
   (testing "sets error"
     (rf/dispatch-sync [:journal/search-failed "test error"])
-    (is (re-matches #"test error" (db/error @app-db)))))
+    (is (re-matches #".*test error.*" (db/error @app-db)))))
 
 (deftest journal-search-succeeded
   (testing "sets search results"

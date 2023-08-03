@@ -1,5 +1,6 @@
 (ns monkey.blog.fe.events
   (:require [re-frame.core :as rf]
+            [martian.re-frame :as martian]
             [monkey.blog.fe.alerts :as a]
             [monkey.blog.fe.config :refer [debug?]]
             [monkey.blog.fe.db :as db]
@@ -27,18 +28,17 @@
 (rf/reg-event-fx
  :journal/load-months
  (fn [{:keys [db]} _]
-   {#_:http-xhrio #_{:method :get
-                 :uri "api/journal/months"
-                 :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success [:journal/months-loaded]
-                 :on-failure [:journal/load-months-failed]}
+   {::martian/request [:list-months
+                       {:area "journal"}
+                       [:journal/months-loaded]
+                       [:journal/load-months-failed]]
     :db (a/set-notification db "Loading journal overview...")}))
 
 (rf/reg-event-db
  :journal/months-loaded
  (fn [db [_ m]]
    (-> db
-       (db/set-journal-months m)
+       (db/set-journal-months (:body m))
        (a/clear-notification))))
 
 (rf/reg-event-db
@@ -60,13 +60,11 @@
  :journal/load-entries
  (fn [{:keys [db]} _]
    (let [p (db/journal-period db)]
-     {#_:http-xhrio
-      #_(cond-> {:method :get
-               :uri "api/journal/month"
-               :response-format (ajax/json-response-format {:keywords? true})
-               :on-success [:journal/entries-loaded]
-               :on-failure [:journal/load-entries-failed]}
-        p (update :uri str "/" p))
+     {::martian/request [:list-entries
+                         (cond-> {:area "journal"}
+                           p (assoc :period p))
+                         [:journal/entries-loaded]
+                         [:journal/load-entries-failed]]
       :db (a/set-notification db (str "Loading entries for " p "..."))})))
 
 (rf/reg-event-db
@@ -103,11 +101,11 @@
    (let [curr (db/current-journal db)]
      (cond-> {:db (db/set-current-panel db :journal/view)}
        (not= (:id curr) id)
-       (assoc :http-xhrio {}#_{:method :get
-                               :uri (str "api/journal/" id)
-                               :response-format (ajax/json-response-format {:keywords? true})
-                               :on-success [:journal/entry-loaded]
-                               :on-failure [:journal/entry-load-failed]})))))
+       (assoc ::martian/request
+              [:get-entry
+               {:id id}
+               [:journal/entry-loaded]
+               [:journal/entry-load-failed]])))))
 
 (rf/reg-event-db
  :journal/entry-loaded
@@ -123,16 +121,12 @@
  :journal/save
  (fn [{:keys [db]} _]
    (let [{:keys [id] :as curr} (db/current-journal db)]
-     {:http-xhrio {} #_(cond-> {:method :post
-                             :uri "api/journal"
-                             :params (u/maybe-update curr :created-on str (t/tz-offset))
-                             :format (ajax/json-request-format)
-                             :response-format (ajax/text-response-format)
-                             :on-success [:journal/save-succeeded]
-                             :on-failure [:journal/save-failed]}
-                      ;; Slightly different behaviour for updating existing entries
-                      (some? id) (-> (assoc :method :put)
-                                     (update :uri str "/" id)))
+     {::martian/request [(if (some? id) :update-entry :create-entry)
+                         (cond-> curr
+                           true (u/maybe-update :created-on str (t/tz-offset))
+                           (nil? id) (dissoc :id))
+                         [:journal/save-succeeded]
+                         [:journal/save-failed]]
       :db (-> db
               (a/set-notification "Saving...")
               (a/clear-error))})))
@@ -165,12 +159,11 @@
  :journal/delete
  (fn [{:keys [db]} _]
    (let [id (:id (db/current-journal db))]
-     {:http-xhrio {} #_{:method :delete
-                     :uri (str "api/journal/" id)
-                     :format (ajax/json-request-format)
-                     :response-format (ajax/text-response-format)
-                     :on-success [:journal/delete-succeeded id]
-                     :on-failure [:journal/delete-failed id]}})))
+     {::martian/request [:delete-entry
+                         {:id id
+                          :area "journal"}
+                         [:journal/delete-succeeded id]
+                         [:journal/delete-failed id]]})))
 
 (rf/reg-event-fx
  :journal/delete-succeeded
@@ -203,12 +196,11 @@
 (rf/reg-event-fx
  :journal/search
  (fn [{:keys [db]} _]
-   {:http-xhrio {} #_{:method :get
-                   :uri "api/journal"
-                   :params {:words (parse-filter-words db)}
-                   :response-format (ajax/json-response-format {:keywords? true})
-                   :on-success [:journal/search-succeeded]
-                   :on-failure [:journal/search-failed]}
+   {::martian/request [:search-entry
+                       {:words (parse-filter-words db)
+                        :area "journal"}
+                       [:journal/search-succeeded]
+                       [:journal/search-failed]]
     :db (db/clear-error db)}))
 
 (rf/reg-event-db

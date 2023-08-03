@@ -10,4 +10,7 @@
   (rf/reg-fx fx (constantly nil)))
 
 (defn catch-http []
-  (catch-fx :http-xhrio))
+  (catch-fx :martian.re-frame/request))
+
+(defn simulate-http []
+  (simulate-fx :martian.re-frame/request))
