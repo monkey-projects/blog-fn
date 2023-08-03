@@ -1,5 +1,5 @@
-(ns monkey-blog.fe.blog.subs-test
-  (:require [monkey-blog.fe.blog
+(ns monkey.blog.fe.blog.subs-test
+  (:require [monkey.blog.fe.blog
              [subs :as sut]
              [db :as db]]
             [midje.sweet :refer :all]

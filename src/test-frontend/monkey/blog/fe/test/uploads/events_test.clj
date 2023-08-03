@@ -1,10 +1,10 @@
-(ns monkey-blog.fe.uploads.events-test
+(ns monkey.blog.fe.uploads.events-test
   (:require [re-frame
              [core :as rf]
              [db :refer [app-db]]]
-            [monkey-blog.fe.uploads.events :as sut]
-            [monkey-blog.fe.db :as db]
-            [monkey-blog.fe.helpers :refer :all]
+            [monkey.blog.fe.uploads.events :as sut]
+            [monkey.blog.fe.db :as db]
+            [monkey.blog.fe.helpers :refer :all]
             [midje.sweet :refer :all]))
 
 (facts "about `file/list-uploads`"

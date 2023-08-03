@@ -1,12 +1,12 @@
-(ns monkey-blog.fe.blog.events-test
+(ns monkey.blog.fe.test.blog.events-test
   (:require [midje.sweet :refer :all]
             [re-frame
              [db :refer [app-db]]
              [core :as rf]]            
-            [monkey-blog.fe.blog
+            [monkey.blog.fe.blog
              [db :as db]
              [events :as e]]
-            [monkey-blog.fe
+            [monkey.blog.fe
              [alerts :as a]
              [helpers :as h]]))
 

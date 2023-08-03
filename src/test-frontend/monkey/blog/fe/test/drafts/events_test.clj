@@ -1,13 +1,13 @@
-(ns monkey-blog.fe.drafts.events-test
+(ns monkey.blog.fe.drafts.events-test
   (:require [midje.sweet :refer :all]
             [re-frame
              [core :as rf]
              [db :refer [app-db]]]
-            [monkey-blog.fe.helpers :refer :all]
-            [monkey-blog.fe.drafts
+            [monkey.blog.fe.helpers :refer :all]
+            [monkey.blog.fe.drafts
              [db :as db]
              [events :as sut]]
-            [monkey-blog.fe
+            [monkey.blog.fe
              [alerts :as a]
              [db :as cdb]]))
 

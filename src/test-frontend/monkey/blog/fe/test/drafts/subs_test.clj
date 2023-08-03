@@ -1,5 +1,5 @@
-(ns monkey-blog.fe.drafts.subs-test
-  (:require [monkey-blog.fe.drafts
+(ns monkey.blog.fe.drafts.subs-test
+  (:require [monkey.blog.fe.drafts
              [db :as db]
              [subs :as sut]]
             [midje.sweet :refer :all]

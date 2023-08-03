@@ -1,9 +1,9 @@
-(ns monkey-blog.fe.uploads.subs-test
+(ns monkey.blog.fe.uploads.subs-test
   (:require [re-frame
              [core :as rf]
              [db :refer [app-db]]]
-            [monkey-blog.fe.uploads.subs :as sut]
-            [monkey-blog.fe.db :as db]
+            [monkey.blog.fe.uploads.subs :as sut]
+            [monkey.blog.fe.db :as db]
             [midje.sweet :refer :all]))
 
 (rf/clear-subscription-cache!)

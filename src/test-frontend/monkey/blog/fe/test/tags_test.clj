@@ -1,5 +1,5 @@
-(ns monkey-blog.fe.tags-test
-  (:require [monkey-blog.fe.tags :as sut]
+(ns monkey.blog.fe.tags-test
+  (:require [monkey.blog.fe.tags :as sut]
             [midje.sweet :refer :all]))
 
 (facts "about `parse-tags`"

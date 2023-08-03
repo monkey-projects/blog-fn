@@ -1,11 +1,11 @@
-(ns monkey-blog.fe.login.events-test
+(ns monkey.blog.fe.login.events-test
   (:require [midje.sweet :refer :all]
             [re-frame
              [core :as rf]
              [db :refer [app-db]]]
-            [monkey-blog.fe.helpers :refer :all]
-            [monkey-blog.fe.db :as db]
-            [monkey-blog.fe.login.events :as sut]))
+            [monkey.blog.fe.helpers :refer :all]
+            [monkey.blog.fe.db :as db]
+            [monkey.blog.fe.login.events :as sut]))
 
 (facts "about `login/username`"
        (fact "sets username in db"

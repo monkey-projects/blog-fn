@@ -1,8 +1,13 @@
 #kaocha/v1
 {:tests
  [{:type :kaocha.type/clojure.test
-   :id :unit
+   :id :backend
    :ns-patterns ["-test$"]
    :source-paths ["src/backend"]
-   :test-paths ["src/test-backend"]}]}
+   :test-paths ["src/test-backend"]}
+  {:type :kaocha.type/clojure.test
+   :id :frontend
+   :ns-patterns ["-test$"]
+   :source-paths ["src/frontend"]
+   :test-paths ["src/test-frontend"]}]}
  

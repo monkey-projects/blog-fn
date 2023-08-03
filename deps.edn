@@ -17,7 +17,7 @@
   {:extra-paths ["env/dev" "dev-resources"]}
   
   :test
-  {:extra-paths ["src/test-backend" "dev-resources"]
+  {:extra-paths ["src/test-backend" "src/test-frontend" "dev-resources"]
    :extra-deps {com.monkeyprojects/build {:mvn/version "0.1.0-SNAPSHOT"
                                           :exclusions [org.slf4j/slf4j-nop]}
                 ring/ring-mock {:mvn/version "0.4.0"}}
