@@ -1,6 +1,6 @@
 (ns monkey.blog.fe.uploads.events
   (:require [re-frame.core :as rf]
-            #_[ajax.core :as ajax]
+            [martian.re-frame :as martian]
             [monkey.blog.fe.db :as db]
             [monkey.blog.fe.utils :as u]))
 
@@ -36,11 +36,10 @@
 (rf/reg-event-fx
  :file/list-uploads
  (fn [_ _]
-   {:http-xhrio {} #_{:method :get
-                    :uri "api/uploads"
-                    :response-format (ajax/json-response-format {:keywords? true})
-                    :on-success [:file/uploads-loaded]
-                    :on-failure [:file/list-uploads-failed]}}))
+   {::martian/request [:list-uploads
+                       {}
+                       [:file/uploads-loaded]
+                       [:file/list-uploads-failed]]}))
 
 (rf/reg-event-db
  :file/uploads-loaded
@@ -57,13 +56,11 @@
  [(rf/inject-cofx :file/files-to-form-data ["file" "file"])]
  (fn [{:keys [db] :as ctx} _]
    (let [add (:add-form-data ctx)]
-     {:http-xhrio {} #_{:method :post
-                      :uri "api/uploads"
-                      :body (-> (:form-data ctx)
-                                (add "area" (or (db/file-area db) "journal")))
-                      :response-format (ajax/json-response-format {:keywords? true})
-                      :on-success [:file/upload-succeeded]
-                      :on-failure [:file/upload-failed]}
+     {::martian/request [:upload-file
+                         (-> (:form-data ctx)
+                             (add "area" (or (db/file-area db) "journal")))
+                         [:file/upload-succeeded]
+                         [:file/upload-failed]]
       :db (db/clear-error db)})))
 
 (rf/reg-event-db
