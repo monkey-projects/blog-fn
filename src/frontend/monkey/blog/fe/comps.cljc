@@ -1,34 +1,40 @@
 (ns monkey.blog.fe.comps
   "Shared components"
   (:require [re-frame.core :as rf]
+            [monkey.blog.fe.routes :as r]
             [monkey.blog.fe.utils :as u]))
 
 (defn public-links
   "Links available on the public site"
   []
-  [:section
-   [:div.title "interesting reads"]
-   [:a {:href "http://www.joelonsoftware.com"} "joel on software"]
-   [:a {:href "https://blogs.msdn.microsoft.com/oldnewthing/"} "the old new thing"]
-   [:a {:href "http://www.martinfowler.com/bliki/"} "martin fowler's bliki"]
-   [:a {:href "https://clojure.org/news/news"} "clojure news"]])
+  [:<>
+   [:section
+    [:div.title "stuff I like"]
+    [:a {:href "http://www.joelonsoftware.com"} "joel on software"]
+    [:a {:href "https://archlinux.org/"} "arch linux"]
+    [:a {:href "https://www.givewell.org/"} "givewell"]
+    [:a {:href "https://ourworldindata.org/"} "our world in data"]
+    [:a {:href "https://clojure.org"} "clojure"]]
+   [:section
+    [:div.title "stuff I'm working on"]
+    [:a {:href "http://monkeyci.com"} "monkey ci"]]])
 
 (defn private-links
   "Links only available in the secure area"
   []
   [:section
    [:div.title "navigation"]
-   [:a {:href "#/"} "weblog"]
-   [:a {:href "#/admin"} "admin"]
-   [:a {:href "#/journal"} "journal"]
-   [:a {:href "#/drafts"} "drafts"]
-   [:a {:href "#/upload"} "upload files"]])
+   [:a {:href (r/path-for ::r/root)} "weblog"]
+   #_[:a {:href "/admin"} "admin"]
+   [:a {:href (r/path-for ::r/journal)} "journal"]
+   [:a {:href "/drafts"} "drafts"]
+   [:a {:href "/upload"} "upload files"]])
 
 (defn links
   "Shows public links, and if the user has been authenticated, also the private links"
   []
   (let [a (rf/subscribe [:authenticated?])]
-    [:section
+    [:div.links
      [public-links]
      (when @a
        [private-links])]))

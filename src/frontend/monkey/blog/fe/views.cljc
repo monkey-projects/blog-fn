@@ -3,6 +3,7 @@
             [monkey.blog.fe.comps :as c]
             [monkey.blog.fe.journal :as journal]
             [monkey.blog.fe.login.views :as login]
+            [monkey.blog.fe.routes :as r]
             [monkey.blog.fe.search :as search]
             [monkey.blog.fe.uploads.views :as uploads]
             [monkey.blog.fe.blog.views :as blog]
@@ -11,8 +12,10 @@
 (defn main-panel []
   (let [auth? (rf/subscribe [:authenticated?])
         panel (rf/subscribe [:current-panel])
+        route (rf/subscribe [:route/current])
         public? #(or (nil? %) (#{:home} %))
         p (:panel @panel)]
+    (println "Current route:" @route)
     (if (not (or @auth? (public? p)))
       ;; User wants access to secure area, show login panel
       [login/login-panel]
