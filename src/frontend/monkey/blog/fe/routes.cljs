@@ -23,6 +23,7 @@
             ["/journal"
              [["" {:name :journal}]
               ["/new" {:name :journal/new}]
+              ["/edit/:id" {:name :journal/edit}]
               ["/search" {:name :journal/search}]]]
             ["/drafts"
              [["" {:name :drafts}]
@@ -33,8 +34,8 @@
 
 (defn path-for
   "Calculates url for given route"
-  [id]
-  (rfe/href id))
+  [id & [path-params]]
+  (rfe/href id path-params))
 
 (defn on-route-change [match history]
   (println "Route changed:" match)

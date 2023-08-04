@@ -34,22 +34,21 @@
 
 (defn search-form []
   (let [w (rf/subscribe [:journal/filter-words])]
-    (j/with-layout
-      [:div.content
-       [:div.entry
-        [:div.title" search journal entries"]
-        [:form
-         [:label {:for "filter"} "search for:"]
-         [:br]
-         [:input {:type :text
-                  :size 50
-                  :id "filter"
-                  :value @w
-                  :on-change (u/value-handler [:journal/search-filter])}]
-         [:p
-          [:a {:href ""
-               :on-click (u/evt-dispatch-handler [:journal/search])} "search"]
-          " | "
-          [:a {:href "#/journal"} "cancel"]]]
-        [c/error]]
-       [search-results]])))
+    [:div.content
+     [:div.entry
+      [:div.title" search journal entries"]
+      [:form
+       [:label {:for "filter"} "search for:"]
+       [:br]
+       [:input {:type :text
+                :size 50
+                :id "filter"
+                :value @w
+                :on-change (u/value-handler [:journal/search-filter])}]
+       [:p
+        [:a {:href ""
+             :on-click (u/evt-dispatch-handler [:journal/search])} "search"]
+        " | "
+        [:a {:href "#/journal"} "cancel"]]]
+      [c/error]]
+     [search-results]]))

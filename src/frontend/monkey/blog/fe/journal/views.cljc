@@ -2,19 +2,22 @@
   "Journal related views"
   (:require [re-frame.core :as rf]
             [monkey.blog.fe.comps :as c]
-            [monkey.blog.fe.subs :as s]
+            [monkey.blog.fe.journal.subs :as s]
             [monkey.blog.fe.time :as t]
             [monkey.blog.fe.utils :as u]
-            [monkey.blog.fe.tags :as tags]))
+            [monkey.blog.fe.tags :as tags]
+            [monkey.blog.fe.routes :as r]))
 
-(defn- entry [{:keys [id body created-on]}]
+(defn- entry [{:keys [id title contents created-on]}]
   [c/card
-   [:div.journal_time (t/format-date-time created-on)]
-   (->> (tags/raw->html body)
-        (into [:div]))
-   [:div.entry_time
-    [:a {:href (str "#/journal/edit/" id)}
-     "edit"]]])
+   title
+   [:<>
+    [:div.journal-time (t/format-date-time created-on)]
+    (->> (tags/raw->html contents)
+         (into [:div]))
+    [:div.entry_time
+     [:a {:href (r/path-for :journal/edit {:id id})}
+      "edit"]]]])
 
 (defn- entries []
   (rf/dispatch [:journal/load-entries])
@@ -90,17 +93,14 @@
       [edit-links @e]]]))
 
 (defn- main-links []
-  [:p
-   [:a {:href "#/journal/new"} "add a new entry"]
-   " | "
-   [:a {:href "#/journal/search"} "search"]])
+  [c/link-para
+   [:a {:href (r/path-for :journal/new)} "add a new entry"]
+   [:a {:href (r/path-for :journal/search)} "search"]])
 
 (defn view []
   (let [e (rf/subscribe [:journal/current])]
-    [:div.content
-     [:div.entry
-      [:div.title (str "view journal entry " (:id @e))]]
-     [entry @e]
+    [:<>
+     [entry (assoc @e :title (str "view journal entry " (:id @e)))]
      [main-links]]))
 
 (defn overview []

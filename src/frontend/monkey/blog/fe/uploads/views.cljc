@@ -9,9 +9,6 @@
    [c/public-links]
    [c/private-links]])
 
-(defn- with-layout [p]
-  (c/with-layout [links] p))
-
 (defn- upload-row [{:keys [id name content-type area url]}]
   [:tr
    [:td id]
@@ -34,15 +31,14 @@
   (rf/dispatch [:file/list-uploads])
   (fn []
     (let [u (rf/subscribe [:file/uploads])]
-      (with-layout
-        [:div.content
-         [:div.entry
-          [:div.title "uploaded files"]
-          (if @u
-            [:div
-             [:p (str "Found " (count @u) " uploaded files")]
-             [uploads-list @u]]
-            [:p "Retrieving uploaded files..."])]]))))
+      [:div.content
+       [:div.entry
+        [:div.title "uploaded files"]
+        (if @u
+          [:div
+           [:p (str "Found " (count @u) " uploaded files")]
+           [uploads-list @u]]
+          [:p "Retrieving uploaded files..."])]])))
 
 (defn- upload-form []
   (let [a (rf/subscribe [:file/area])]
@@ -73,11 +69,10 @@
                                     (:id @l)]])))
 
 (defn new-upload []
-  (with-layout
-    [:div.content
-     [:div.entry
-      [:div.title "upload file"]
-      [upload-form]
-      [last-upload]]
-     [:p
-      [:a {:href "#/upload/list"} "view uploaded files"]]]))
+  [:div.content
+   [:div.entry
+    [:div.title "upload file"]
+    [upload-form]
+    [last-upload]]
+   [:p
+    [:a {:href "#/upload/list"} "view uploaded files"]]])

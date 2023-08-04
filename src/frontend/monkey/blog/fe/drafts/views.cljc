@@ -25,26 +25,22 @@
   (->> (mapv draft-summary d)
        (into [:div])))
 
-(defn- with-layout [body]
-  (c/with-layout [c/links] body))
-
 (defn draft-overview []
   (let [d (rf/subscribe [:drafts])]
     (when (nil? @d)
       (rf/dispatch [:drafts/load]))
-    (with-layout
-      [:div.content
-       [:div.entry
-        [:div.title "Drafts"]
-        (if (nil? @d)
-          [:p "Loading drafts..."]
-          [:p "Found " (count @d) " draft(s)"])]
-       [:p
-        [c/error]
-        [c/notification]]
-       [drafts @d]
-       [:p
-        [:a {:href "#/drafts/new"} "new"]]])))
+    [:div.content
+     [:div.entry
+      [:div.title "Drafts"]
+      (if (nil? @d)
+        [:p "Loading drafts..."]
+        [:p "Found " (count @d) " draft(s)"])]
+     [:p
+      [c/error]
+      [c/notification]]
+     [drafts @d]
+     [:p
+      [:a {:href "#/drafts/new"} "new"]]]))
 
 (defn- cancel-link []
   [:a {:href "#/drafts"} "cancel"])
@@ -59,19 +55,18 @@
 
 (defn edit-draft []
   (let [draft (rf/subscribe [:draft/current])]
-    (with-layout
-      [:div.entry
-       [:div.title "edit draft"]
-       [:form
-        [:div "title:" [:br]
-         [:input {:type :text
-                  :value (:title @draft)
-                  :on-change (u/value-handler [:draft/changed :title])}]]
-        [:div "body:" [:br]
-         [:textarea {:value (:body @draft)
-                     :on-change (u/value-handler [:draft/changed :body])
-                     :cols 55
-                     :rows 20}]]]
-       [c/notification]
-       [c/error]
-       [edit-links @draft]])))
+    [:div.entry
+     [:div.title "edit draft"]
+     [:form
+      [:div "title:" [:br]
+       [:input {:type :text
+                :value (:title @draft)
+                :on-change (u/value-handler [:draft/changed :title])}]]
+      [:div "body:" [:br]
+       [:textarea {:value (:body @draft)
+                   :on-change (u/value-handler [:draft/changed :body])
+                   :cols 55
+                   :rows 20}]]]
+     [c/notification]
+     [c/error]
+     [edit-links @draft]]))

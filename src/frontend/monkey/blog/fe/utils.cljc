@@ -40,3 +40,9 @@
   (if (contains? m k)
     (apply update m k f args)
     m))
+
+(defn db-fn
+  "Useful for simple subs that only invoke a db function."
+  [f]
+  (fn [db _]
+    (f db)))

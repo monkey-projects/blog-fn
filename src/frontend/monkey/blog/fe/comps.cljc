@@ -70,7 +70,8 @@
 
 (defn card [title & contents]
   (into [:div.card
-         [:div.title title]]
+         (when title
+           [:div.title title])]
         contents))
 
 (defn link-para
