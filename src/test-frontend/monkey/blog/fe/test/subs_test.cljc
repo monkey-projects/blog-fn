@@ -52,15 +52,15 @@
     
     (testing "returns months from db"
       (is (some? (reset! app-db (db/set-journal-months {} {:2020 [[1 3] [2 1]]}))))
-      (is (= {"2020" [1 2]})))
+      (is (= {"2020" [1 2]} @e)))
     
     (testing "is backwards compatible"
       (is (some? (reset! app-db (db/set-journal-months {} {:2020 [1 2]}))))
-      (is (= {"2020" [1 2]})))
+      (is (= {"2020" [1 2]} @e)))
     
     (testing "sorts months"
       (is (some? (reset! app-db (db/set-journal-months {} {:2020 [[2 2] [1 3]]}))))
-      (is (= {"2020" [1 2]})))))
+      (is (= {"2020" [1 2]} @e)))))
 
 (deftest journal-month-counts
   (let [e (rf/subscribe [:journal/month-counts])]

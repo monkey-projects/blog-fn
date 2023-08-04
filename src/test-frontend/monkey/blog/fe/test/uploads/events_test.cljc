@@ -19,7 +19,7 @@
 (deftest file-list-uploads-failed
   (testing "sets error"
     (rf/dispatch-sync [:file/list-uploads-failed "test error"])
-    (is (= (re-matches #".*test error.*" (db/error @app-db))))))
+    (is (re-matches #".*test error.*" (db/error @app-db)))))
 
 (deftest file-uploads-loaded
   (testing "sets uploads in db"
