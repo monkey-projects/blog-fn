@@ -24,6 +24,7 @@
 
 (defn ^:dev/after-load reload! []
   (rf/clear-subscription-cache!)
+  (rf/dispatch-sync [:routing/start])
   (let [root-el (.getElementById js/document "app")]
     (rdom/unmount-component-at-node root-el)
     (rdom/render [v/main-panel] root-el)))
@@ -31,10 +32,11 @@
 (defn init []
   (try
     (rf/dispatch-sync [::e/initialize-db])
-    (rf/dispatch-sync [:routing/start])
     (dev-setup)
-    (let [loc js/location]
-      (martian/init (str (.-origin loc) "/swagger.json")))
+    (let [loc js/location
+          url (str (.-origin loc) "/swagger.json")]
+      (println "Fetching swagger definition from" url)
+      (martian/init url))
     (reload!)
     (catch js/Object ex
       (println "Failed to initialize:" ex))))

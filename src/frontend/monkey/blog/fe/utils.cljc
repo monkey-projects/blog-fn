@@ -18,10 +18,7 @@
   (fn [e]
     (rf/dispatch-sync (vec (conj evt (get-value e))))))
 
-(defn extract-error [e]
-  (or (:status-text e)
-      (:body e)
-      (str e)))
+(def extract-error (some-fn :status-text :body :message str))
 
 (defn pad-left
   "Left-pads given string with the number of characters"
@@ -43,5 +40,3 @@
   (if (contains? m k)
     (apply update m k f args)
     m))
-
-    

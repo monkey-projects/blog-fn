@@ -8,10 +8,11 @@
 (rf/reg-event-fx
  :blog/latest
  (fn [{:keys [db]} _]
-   {::martian/request [:get-latest
-                       {}
-                       [::latest-received]
-                       [::latest-failed]]
+   {:dispatch [::martian/request
+               :get-latest
+               {}
+               [::latest-received]
+               [::latest-failed]]
     :db (a/set-notification db "Loading latest blog entry...")}))
 
 (rf/reg-event-db

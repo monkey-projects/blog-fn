@@ -155,16 +155,8 @@ a:vlink {
     border-color: #40a0ff;
 }
 
-.content .error {
-    margin-left: 150px;
-}
-
 .error .retry {
     margin-left: 5px;
-}
-
-.content .notification {
-    margin-left: 150px;
 }
 
 .link-btn {

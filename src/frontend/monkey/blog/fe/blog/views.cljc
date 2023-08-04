@@ -11,20 +11,18 @@
    (->> (tags/raw->html body)
         (into [:div]))])
 
-(defn bliki []
+(defn- intro []
+  [:p
+   "Some of my rants on software development, the future of mankind and other small things. "
+   "Never mind the occasional rape of the english language. "
+   "I'm sure your dutch is much better than my english."])
+
+(defn latest []
   (rf/dispatch [:blog/latest])
   (fn []
     (let [e (rf/subscribe [:blog/latest])]
-      (c/with-layout
-        [:section
-         [c/links]]
-        [:div.content
-         [:p
-          "Some of my rants on software development, the future of mankind and other small things. "
-          "Never mind the occasional rape of the english language. "
-          "I'm sure your dutch is much better than my english."]
-         [c/notification]
-         [c/error]
-         (if (nil? @e)
-           [:div.entry "No blog entries found."]
-           [show-entry @e])]))))
+      [:<>
+       [intro]
+       (if (nil? @e)
+         [:div.entry "No blog entries found."]
+         [show-entry @e])])))

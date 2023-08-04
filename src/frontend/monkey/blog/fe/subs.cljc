@@ -4,11 +4,6 @@
             [monkey.blog.fe.time :as t]))
 
 (rf/reg-sub
- :current-panel
- (fn [db _]
-   (db/current-panel db)))
-
-(rf/reg-sub
  :journal/entries
  (fn [db _]
    (db/journal-entries db)))

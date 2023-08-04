@@ -24,11 +24,11 @@
   []
   [:section
    [:div.title "navigation"]
-   [:a {:href (r/path-for ::r/root)} "weblog"]
+   [:a {:href (r/path-for :root)} "weblog"]
    #_[:a {:href "/admin"} "admin"]
-   [:a {:href (r/path-for ::r/journal)} "journal"]
-   [:a {:href "/drafts"} "drafts"]
-   [:a {:href "/upload"} "upload files"]])
+   [:a {:href (r/path-for :journal)} "journal"]
+   [:a {:href (r/path-for :drafts)} "drafts"]
+   [:a {:href (r/path-for :upload)} "upload files"]])
 
 (defn links
   "Shows public links, and if the user has been authenticated, also the private links"
@@ -43,12 +43,16 @@
   [:a {:href ""
        :on-click (u/evt-dispatch-handler evt)} lbl])
 
-(defn error []
+(defn error
+  "Renders error component"
+  []
   (let [e (rf/subscribe [:error])]
     (when @e
       [:div.error @e])))
 
-(defn notification []
+(defn notification
+  "Renders notification component"
+  []
   (let [e (rf/subscribe [:alerts/notification])]
     (when @e
       [:div.notification @e])))

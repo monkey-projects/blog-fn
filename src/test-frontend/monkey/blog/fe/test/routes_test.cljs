@@ -4,7 +4,8 @@
             [monkey.blog.fe.routes :as sut]
             [monkey.blog.fe.test.fixtures :as tf]
             [re-frame.core :as rf]
-            [re-frame.db :refer [app-db]]))
+            [re-frame.db :refer [app-db]]
+            [reitit.frontend :as fr]))
 
 (t/use-fixtures :each (tf/restore-re-frame) tf/reset-db)
 
@@ -15,6 +16,20 @@
      (is (= :test-match (-> (:route/current @app-db)
                             :data
                             :name))))))
+
+(defn- route-tests [base]
+  (let [r (sut/make-router base)]
+    (testing "matches root"
+      (is (= :root (-> (fr/match-by-path r (or base ""))
+                       :data
+                       :name))))))
+
+(deftest router
+  (testing "without base"
+    (route-tests nil))
+
+  (testing "with base"
+    (route-tests "/base")))
 
 (deftest current-sub
   (let [c (rf/subscribe [:route/current])]
@@ -45,4 +60,4 @@
   (testing "calculates path for route"
     ;; Need to start before we can call `path-for` to register history object
     (is (some? (sut/start! (sut/make-router nil))))
-    (is (= "/journal" (sut/path-for ::sut/journal)))))
+    (is (= "/journal" (sut/path-for :journal)))))

@@ -9,15 +9,6 @@
 
 (rf/clear-subscription-cache!)
 
-(deftest current-panel
-  (let [c (rf/subscribe [:current-panel])]
-    (testing "exists"
-      (is (some? c)))
-    
-    (testing "returns current panel from db"
-      (is (some? (reset! app-db (db/set-current-panel {} :test-panel []))))
-      (is (= :test-panel (:panel @c))))))
-
 (deftest journal-entries
   (let [e (rf/subscribe [:journal/entries])]
     (testing "exists"

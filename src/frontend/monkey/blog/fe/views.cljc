@@ -9,34 +9,33 @@
             [monkey.blog.fe.blog.views :as blog]
             [monkey.blog.fe.drafts.views :as drafts]))
 
+(defn- current-panel [route-id params]
+  (case route-id
+    :journal         (->> (:path params)
+                          (into [journal/overview]))
+    :journal/edit    [journal/edit]
+    :journal/view    [journal/view]
+    :journal/search  [search/search-form]
+    :uploads         [uploads/new-upload]
+    :uploads/list    [uploads/list-uploads]
+    :drafts          [drafts/draft-overview]
+    :draft/edit      [drafts/edit-draft]
+    ;; Default
+    [blog/latest]))
+
 (defn main-panel []
   (let [auth? (rf/subscribe [:authenticated?])
-        panel (rf/subscribe [:current-panel])
         route (rf/subscribe [:route/current])
-        public? #(or (nil? %) (#{:home} %))
-        p (:panel @panel)]
-    (println "Current route:" @route)
-    (if (not (or @auth? (public? p)))
-      ;; User wants access to secure area, show login panel
-      [login/login-panel]
-      ;; User has either been authenticated, or the area is public
-      (case p
-        :journal
-        (->> (:params @panel)
-             (into [journal/overview]))
-        :journal/edit
-        [journal/edit]
-        :journal/view
-        [journal/view]
-        :journal/search
-        [search/search-form]
-        :uploads
-        [uploads/new-upload]
-        :uploads/list
-        [uploads/list-uploads]
-        :drafts
-        [drafts/draft-overview]
-        :draft/edit
-        [drafts/edit-draft]
-        ;; Default
-        [blog/bliki]))))
+        public? #(or (nil? %) (#{:root} %))
+        route-id (get-in @route [:data :name])]
+    (println "Current route:" route-id)
+    [:<>
+     [:div.content
+      [c/error]
+      [c/notification]
+      (if-not (or @auth? (public? route-id))
+        ;; User wants access to secure area, show login panel
+        [login/login-panel]
+        ;; User has either been authenticated, or the area is public
+        [current-panel route-id (get-in @route [:data :parameters])])]
+     [c/links]]))
