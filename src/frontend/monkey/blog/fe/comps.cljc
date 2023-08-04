@@ -57,7 +57,7 @@
     (when @e
       [:div.notification @e])))
 
-(defn with-layout
+(defn ^:deprecated with-layout
   "Wraps given `p` component in the default layout, with the specified links to show"
   [links p]
   [:table {:width "100%" :cell-padding 0}
@@ -67,3 +67,16 @@
       p]
      [:td {:valign "top" :align "right" :nowrap "true"}
       [:div.links links]]]]])
+
+(defn card [title & contents]
+  (into [:div.card
+         [:div.title title]]
+        contents))
+
+(defn link-para
+  "Renders a paragraph with multiple links"
+  [& links]
+  (->> links
+       (interpose " | ")
+       (vec)
+       (into [:p])))

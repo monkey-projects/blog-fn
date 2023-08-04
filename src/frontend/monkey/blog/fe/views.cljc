@@ -1,7 +1,7 @@
 (ns monkey.blog.fe.views
   (:require [re-frame.core :as rf]
             [monkey.blog.fe.comps :as c]
-            [monkey.blog.fe.journal :as journal]
+            [monkey.blog.fe.journal.views :as journal]
             [monkey.blog.fe.login.views :as login]
             [monkey.blog.fe.routes :as r]
             [monkey.blog.fe.search :as search]

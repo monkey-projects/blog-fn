@@ -1,4 +1,4 @@
-(ns monkey.blog.fe.journal
+(ns monkey.blog.fe.journal.views
   "Journal related views"
   (:require [re-frame.core :as rf]
             [monkey.blog.fe.comps :as c]
@@ -8,7 +8,7 @@
             [monkey.blog.fe.tags :as tags]))
 
 (defn- entry [{:keys [id body created-on]}]
-  [:div.entry
+  [c/card
    [:div.journal_time (t/format-date-time created-on)]
    (->> (tags/raw->html body)
         (into [:div]))
@@ -22,7 +22,6 @@
     (let [e (rf/subscribe [:journal/entries])
           p (rf/subscribe [:journal/period])]
       [:div
-       [c/notification]
        (cond
          (empty? @e)
          [:p "No entries found for " @p "."]
@@ -32,11 +31,7 @@
          [:p "Found " (count @e) " entries for " @p "."])
        (->> @e
             (map entry)
-            (into [:div]))])))
-
-(defn- pad-zero [s]
-  (cond->> s
-    (= (count s) 1) (str "0")))
+            (into [:<>]))])))
 
 (defn- total-entries [m]
   (if (empty? m)
@@ -46,7 +41,7 @@
 (defn- ->month-links [[y {:keys [months expanded?]}]]
   (->> (if expanded? months [])
        (map
-        (fn [[m n]] [:a {:href (str "#/journal/" y (pad-zero (str m)))}
+        (fn [[m n]] [:a {:href (str "#/journal/" y (u/pad-zero (str m) 2))}
                      (get s/month-names (dec m)) [:span.count " (" n ")"]]))
        (into [:div
               [:a {:href ""
@@ -67,11 +62,6 @@
    [c/private-links]
    [month-links]])
 
-(defn with-layout
-  "Wraps given `p` component in the layout for journals"
-  [p]
-  (c/with-layout [links] p))
-
 (defn- cancel-link []
   (let [p (rf/subscribe [:journal/period-id])]
     [:a {:href (str "#/journal/" @p)} "cancel"]))
@@ -86,19 +76,18 @@
 
 (defn edit []
   (let [e (rf/subscribe [:journal/current])]
-    (with-layout
-      [:div.entry
-       [:div.title "edit journal entry"]
-       [:form
-        [:p "date: " (:created-on @e)]
-        [:div "body:" [:br]
-         [:textarea {:value (:body @e)
-                     :on-change (u/value-handler [:journal/changed])
-                     :cols 55
-                     :rows 20}]]
-        [c/notification]
-        [c/error]
-        [edit-links @e]]])))
+    [:div.entry
+     [:div.title "edit journal entry"]
+     [:form
+      [:p "date: " (:created-on @e)]
+      [:div "body:" [:br]
+       [:textarea {:value (:body @e)
+                   :on-change (u/value-handler [:journal/changed])
+                   :cols 55
+                   :rows 20}]]
+      [c/notification]
+      [c/error]
+      [edit-links @e]]]))
 
 (defn- main-links []
   [:p
@@ -108,21 +97,17 @@
 
 (defn view []
   (let [e (rf/subscribe [:journal/current])]
-    (with-layout
-      [:div.content
-       [:div.entry
-        [:div.title (str "view journal entry " (:id @e))]]
-       [entry @e]
-       [main-links]])))
-
-(defn- contents []
-  [:div.content
-   [:p "My journal.  If you are not me, then you've hacked this page. "
-    "Congratulations, but you won't find a lot of interest here."]
-   [entries]
-   [main-links]])
+    [:div.content
+     [:div.entry
+      [:div.title (str "view journal entry " (:id @e))]]
+     [entry @e]
+     [main-links]]))
 
 (defn overview []
   (rf/dispatch [:journal/load-months])
   (fn []
-    (with-layout [contents])))
+    [:<>
+     [:p "My journal.  If you are not me, then you've hacked this page. "
+      "Congratulations, but you won't find a lot of interest here."]
+     [entries]
+     [main-links]]))

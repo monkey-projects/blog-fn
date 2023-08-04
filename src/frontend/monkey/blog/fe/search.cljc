@@ -2,7 +2,7 @@
   "Views for searching"
   (:require [re-frame.core :as rf]
             [monkey.blog.fe.comps :as c]
-            [monkey.blog.fe.journal :as j]
+            [monkey.blog.fe.journal.views :as j]
             [monkey.blog.fe.time :as t]
             [monkey.blog.fe.utils :as u]))
 
