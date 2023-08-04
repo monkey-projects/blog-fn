@@ -10,7 +10,7 @@
  (fn [{:keys [db]} _]
    {:dispatch [::martian/request
                :get-latest
-               {}
+               {:area "blog"}
                [::latest-received]
                [::latest-failed]]
     :db (a/set-notification db "Loading latest blog entry...")}))

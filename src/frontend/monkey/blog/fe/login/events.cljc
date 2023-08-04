@@ -24,11 +24,12 @@
  :login
  (fn [{:keys [db]} _]
    (let [{:keys [username password]} (db/credentials db)]
-     {::martian/request [:login
-                         {:username username
-                          :password password}
-                         [:login/succeeded]
-                         [:login/failed]]})))
+     {:dispatch [::martian/request
+                 :login
+                 {:username username
+                  :password password}
+                 [:login/succeeded]
+                 [:login/failed]]})))
 
 (rf/reg-event-db
  :login/succeeded
@@ -45,10 +46,11 @@
 (rf/reg-event-fx
  :login/logoff
  (fn [{:keys [db]} _]
-   {::martian/request [:logoff
-                       {}
-                       [:logoff/success]
-                       [:logoff/failed]]
+   {:dispatch [::martian/request
+               :logoff
+               {}
+               [:logoff/success]
+               [:logoff/failed]]
     :db (db/clear-error db)}))
 
 (rf/reg-event-fx

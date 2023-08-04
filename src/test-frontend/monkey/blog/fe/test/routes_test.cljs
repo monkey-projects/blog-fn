@@ -20,7 +20,7 @@
 (defn- route-tests [base]
   (let [r (sut/make-router base)]
     (testing "matches root"
-      (is (= :root (-> (fr/match-by-path r (or base ""))
+      (is (= :root (-> (fr/match-by-path r (str base "/"))
                        :data
                        :name))))))
 

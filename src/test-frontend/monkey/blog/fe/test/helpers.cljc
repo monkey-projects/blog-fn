@@ -10,7 +10,13 @@
   (rf/reg-fx fx (constantly nil)))
 
 (defn catch-http []
-  (catch-fx :martian.re-frame/request))
+  (let [e (atom [])]
+    (rf/reg-fx :dispatch
+               (fn [[t & req]]
+                 (when (= :martian.re-frame/request t)
+                   (swap! e conj req))))
+    e))
 
 (defn simulate-http []
-  (simulate-fx :martian.re-frame/request))
+  ;; Noop
+  )

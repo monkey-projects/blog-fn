@@ -28,10 +28,11 @@
 (rf/reg-event-fx
  :journal/load-months
  (fn [{:keys [db]} _]
-   {::martian/request [:list-months
-                       {:area "journal"}
-                       [:journal/months-loaded]
-                       [:journal/load-months-failed]]
+   {:dispatch [::martian/request
+               :list-months
+               {:area "journal"}
+               [:journal/months-loaded]
+               [:journal/load-months-failed]]
     :db (a/set-notification db "Loading journal overview...")}))
 
 (rf/reg-event-db
@@ -60,11 +61,12 @@
  :journal/load-entries
  (fn [{:keys [db]} _]
    (let [p (db/journal-period db)]
-     {::martian/request [:list-entries
-                         (cond-> {:area "journal"}
-                           p (assoc :period p))
-                         [:journal/entries-loaded]
-                         [:journal/load-entries-failed]]
+     {:dispatch [::martian/request
+                 :list-entries
+                 (cond-> {:area "journal"}
+                   p (assoc :period p))
+                 [:journal/entries-loaded]
+                 [:journal/load-entries-failed]]
       :db (a/set-notification db (str "Loading entries for " p "..."))})))
 
 (rf/reg-event-db
@@ -101,8 +103,9 @@
    (let [curr (db/current-journal db)]
      (cond-> {:db (db/set-current-panel db :journal/view)}
        (not= (:id curr) id)
-       (assoc ::martian/request
-              [:get-entry
+       (assoc :dispatch
+              [::martian/request
+               :get-entry
                {:id id}
                [:journal/entry-loaded]
                [:journal/entry-load-failed]])))))
@@ -121,12 +124,13 @@
  :journal/save
  (fn [{:keys [db]} _]
    (let [{:keys [id] :as curr} (db/current-journal db)]
-     {::martian/request [(if (some? id) :update-entry :create-entry)
-                         (cond-> curr
-                           true (u/maybe-update :created-on str (t/tz-offset))
-                           (nil? id) (dissoc :id))
-                         [:journal/save-succeeded]
-                         [:journal/save-failed]]
+     {:dispatch [::martian/request
+                 (if (some? id) :update-entry :create-entry)
+                 (cond-> curr
+                   true (u/maybe-update :created-on str (t/tz-offset))
+                   (nil? id) (dissoc :id))
+                 [:journal/save-succeeded]
+                 [:journal/save-failed]]
       :db (-> db
               (a/set-notification "Saving...")
               (a/clear-error))})))
@@ -159,11 +163,12 @@
  :journal/delete
  (fn [{:keys [db]} _]
    (let [id (:id (db/current-journal db))]
-     {::martian/request [:delete-entry
-                         {:id id
-                          :area "journal"}
-                         [:journal/delete-succeeded id]
-                         [:journal/delete-failed id]]})))
+     {:dispatch [::martian/request
+                 :delete-entry
+                 {:id id
+                  :area "journal"}
+                 [:journal/delete-succeeded id]
+                 [:journal/delete-failed id]]})))
 
 (rf/reg-event-fx
  :journal/delete-succeeded
@@ -196,11 +201,12 @@
 (rf/reg-event-fx
  :journal/search
  (fn [{:keys [db]} _]
-   {::martian/request [:search-entry
-                       {:words (parse-filter-words db)
-                        :area "journal"}
-                       [:journal/search-succeeded]
-                       [:journal/search-failed]]
+   {:dispatch [::martian/request
+               :search-entry
+               {:words (parse-filter-words db)
+                :area "journal"}
+               [:journal/search-succeeded]
+               [:journal/search-failed]]
     :db (db/clear-error db)}))
 
 (rf/reg-event-db

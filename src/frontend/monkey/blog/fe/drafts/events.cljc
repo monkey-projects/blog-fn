@@ -9,10 +9,11 @@
 (rf/reg-event-fx
  :drafts/load
  (fn [ctx _]
-   {::martian/request [:list-entries
-                       {:area "drafts"}
-                       [:drafts/loaded]
-                       [:drafts/load-failed]]}))
+   {:dispatch [::martian/request
+               :list-entries
+               {:area "drafts"}
+               [:drafts/loaded]
+               [:drafts/load-failed]]}))
 
 (rf/reg-event-db
  :drafts/loaded
@@ -43,11 +44,12 @@
 (rf/reg-event-fx
  :draft/delete
  (fn [{:keys [db]} [_ draft]]
-   {::martian/request [:delete-entry
-                       {:area "drafts"
-                        :id (:id draft)}
-                       [:draft/deleted]
-                       [:draft/delete-failed]]
+   {:dispatch [::martian/request
+               :delete-entry
+               {:area "drafts"
+                :id (:id draft)}
+               [:draft/deleted]
+               [:draft/delete-failed]]
     :db (a/clear-all db)}))
 
 (rf/reg-event-db
@@ -67,12 +69,13 @@
  (fn [{:keys [db]} _]
    (let [d (db/current-draft db)
          new? (nil? (:id d))]
-     {::martian/request [(if new? :create-entry :update-entry)
-                         (-> d
-                             (select-keys [:id :title :contents])
-                             (merge {:area "drafts"}))
-                         [:draft/saved]
-                         [:draft/save-failed]]
+     {:dispatch [::martian/request
+                 (if new? :create-entry :update-entry)
+                 (-> d
+                     (select-keys [:id :title :contents])
+                     (merge {:area "drafts"}))
+                 [:draft/saved]
+                 [:draft/save-failed]]
       :db (a/clear-all db)})))
 
 (defn- add-or-replace-draft [db {:keys [id] :as upd}]
@@ -96,10 +99,11 @@
 (rf/reg-event-fx
  :draft/publish
  (fn [ctx [_ draft]]
-   {::martian/request [:publish-draft
-                       {:id (:id draft)}
-                       [:draft/published]
-                       [:draft/publish-failed]]}))
+   {:dispatch [::martian/request
+               :publish-draft
+               {:id (:id draft)}
+               [:draft/published]
+               [:draft/publish-failed]]}))
 
 (rf/reg-event-db
  :draft/published

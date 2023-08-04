@@ -36,10 +36,11 @@
 (rf/reg-event-fx
  :file/list-uploads
  (fn [_ _]
-   {::martian/request [:list-uploads
-                       {}
-                       [:file/uploads-loaded]
-                       [:file/list-uploads-failed]]}))
+   {:dispatch [::martian/request
+               :list-uploads
+               {}
+               [:file/uploads-loaded]
+               [:file/list-uploads-failed]]}))
 
 (rf/reg-event-db
  :file/uploads-loaded
@@ -56,11 +57,12 @@
  [(rf/inject-cofx :file/files-to-form-data ["file" "file"])]
  (fn [{:keys [db] :as ctx} _]
    (let [add (:add-form-data ctx)]
-     {::martian/request [:upload-file
-                         (-> (:form-data ctx)
-                             (add "area" (or (db/file-area db) "journal")))
-                         [:file/upload-succeeded]
-                         [:file/upload-failed]]
+     {:dispatch [::martian/request
+                 :upload-file
+                 (-> (:form-data ctx)
+                     (add "area" (or (db/file-area db) "journal")))
+                 [:file/upload-succeeded]
+                 [:file/upload-failed]]
       :db (db/clear-error db)})))
 
 (rf/reg-event-db

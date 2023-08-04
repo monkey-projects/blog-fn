@@ -15,7 +15,8 @@
   (testing "loads latest from backend"
     (let [e (h/catch-http)]
       (rf/dispatch-sync [:blog/latest])
-      (is (= :get-latest (ffirst @e)))))
+      (is (= :get-latest (ffirst @e)))
+      (is (= "blog" (-> @e (first) (second) :area)))))
 
   (testing "sets notification"
     (rf/dispatch-sync [:blog/latest])
