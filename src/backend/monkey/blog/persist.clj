@@ -44,5 +44,6 @@
   "Retrieves latest entry.  This should be moved into the protocol as it
    can be made much more efficient depending on storage implementation."
   [s area]
-  (-> (list-entries s {:area area})
-      (last)))
+  (->> (list-entries s {:area area})
+       (sort-by :time)
+       (last)))
