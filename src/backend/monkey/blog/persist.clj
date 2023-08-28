@@ -39,3 +39,10 @@
 
 (defn make-memory-storage []
   (->MemoryStorage (atom {})))
+
+(defn latest-entry
+  "Retrieves latest entry.  This should be moved into the protocol as it
+   can be made much more efficient depending on storage implementation."
+  [s area]
+  (-> (list-entries s {:area area})
+      (last)))

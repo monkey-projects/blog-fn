@@ -121,6 +121,24 @@
             (is (no-content? (-> (mock/request :delete (str "/api/entries/" area "/" id))
                                  (test-handler)))))))))
 
+  (testing "api/latest"
+    (testing "GET /:area"
+      (testing "returns 404 when no entries"
+        (let [h (sut/make-handler {:storage (p/make-memory-storage)})]
+          (is (not-found? (-> (mock/request :get "/api/latest/blog")
+                              (h))))))
+
+      (testing "returns latest entry for area"
+        (let [id (p/write-entry storage {:title "test"
+                                         :area "blog"})
+              response (-> (mock/request :get "/api/latest/blog")
+                           (test-handler))]
+          (is (success? response))
+          (is (= "test" (-> response
+                            :body
+                            (json->)
+                            :title)))))))
+
   (testing "provides swagger file at `/swagger.json`"
     (is (= 200
            (-> (mock/request :get "/swagger.json")
