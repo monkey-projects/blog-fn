@@ -17,12 +17,3 @@
                            (assoc-in ctx [:cookie :bliki-session] "test-session")))
     (rf/dispatch-sync [::e/initialize-db])
     (is (true? (db/authenticated? @app-db)))))
-
-(deftest route-selected
-  (testing "changes current panel"
-    (rf/dispatch-sync [:route/selected :test-route])
-    (is (= :test-route (-> (db/current-panel @app-db) :panel))))
-
-  (testing "stores any parameters"
-    (rf/dispatch-sync [:route/selected :test-route :arg1 :arg2])
-    (is (= [:arg1 :arg2] (-> (db/current-panel @app-db) :params)))))

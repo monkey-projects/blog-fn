@@ -20,8 +20,3 @@
                                                 :body "This is a test entry"}])
                      (db/set-current-panel :journal)
                      (jdb/set-journal-months {:2020 (zipmap (range 1 5) (repeat 1))})))}))
-
-(rf/reg-event-db
- :route/selected
- (fn [db [_ v & args]]
-   (db/set-current-panel db v args)))
