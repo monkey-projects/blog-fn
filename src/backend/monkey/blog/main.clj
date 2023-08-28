@@ -32,11 +32,17 @@
   {(s/optional-key :title) (s/maybe s/Str)
    (s/optional-key :time) (s/maybe s/Str)
    :contents s/Str})
-  
+
+(def id-pattern #"^[^$]+\$.+$")
+
 (defn make-router [config]
   (rr/router
    [["/api" {:middleware [[config-middleware config]]
              :coercion reitit.coercion.schema/coercion}
+     ["/latest/:area" {:get
+                       {:operationId :get-latest
+                        :handler api/get-latest}
+                       :parameters {:path {:area s/Str}}}]
      ["/entries" {:tags ["entries"]}
       ["/:area" {:parameters {:path {:area s/Str}}}
        ["/:id" {:get

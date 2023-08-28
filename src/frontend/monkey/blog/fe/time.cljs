@@ -3,8 +3,8 @@
   (:require ["luxon" :refer (DateTime)]
             [monkey.blog.fe.utils :as u]))
 
-(defn- datetime? [x]
-  (some? (.-toLocaleString x)))
+(defn datetime? [x]
+  (and (some? x) (some? (.-toLocaleString x))))
 
 (defn parse-date-time [s]
   (if (datetime? s)

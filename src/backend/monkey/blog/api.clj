@@ -29,6 +29,14 @@
        :body match}
       {:status 404})))
 
+(defn get-latest [req]
+  (let [area (get-in req [:parameters :path :area])
+        match (p/latest-entry (storage req) area)]
+    (if (some? match)
+      {:status 200
+       :body match}
+      {:status 404})))
+
 (defn create-entry [req]
   (let [entry (->> (get-in req [:parameters :body])
                    (assoc-area req))
