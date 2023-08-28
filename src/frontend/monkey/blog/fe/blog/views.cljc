@@ -7,7 +7,7 @@
 (defn- show-entry [{:keys [title contents time views]}]
   [c/card
    title
-   [:div.journal_time (t/format-date-time time) ", " (or views 0) " views"]
+   [:div.journal-time "Published " (t/format-date-time time)]
    (->> (tags/raw->html contents)
         (into [:div]))])
 
