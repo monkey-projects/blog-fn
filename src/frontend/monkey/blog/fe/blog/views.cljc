@@ -4,11 +4,11 @@
             [monkey.blog.fe.tags :as tags]
             [monkey.blog.fe.time :as t]))
 
-(defn- show-entry [{:keys [title body creation-date views]}]
-  [:div.entry
-   [:div.title title]
-   [:div.journal_time (t/format-date-time creation-date) ", " views " views"]
-   (->> (tags/raw->html body)
+(defn- show-entry [{:keys [title contents time views]}]
+  [c/card
+   title
+   [:div.journal_time (t/format-date-time time) ", " (or views 0) " views"]
+   (->> (tags/raw->html contents)
         (into [:div]))])
 
 (defn- intro []
